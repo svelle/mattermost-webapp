@@ -86,10 +86,11 @@ export default class GetHelp extends AdminSettings {
                         helpText={
                             <FormattedMessage
                                 id='admin.support.flare.email.description'
-                                defaultMessage='If you want to get responses to a different email address than the one set in the Customization section please enter it here.'
+                                defaultMessage='The sender of this email is automatically set to the Support Email setup in the SiteConfiguration->Customization section of the System Console.'
                             />
                         }
                         value={this.state.adminEmail}
+                        disabled={true}
                     />
                     {/*TODO: Make this button actually send off the email*/}
                     <button
