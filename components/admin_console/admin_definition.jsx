@@ -46,6 +46,7 @@ import DatabaseSettings from './database_settings.jsx';
 import ElasticSearchSettings from './elasticsearch_settings.jsx';
 import ClusterSettings from './cluster_settings.jsx';
 import CustomTermsOfServiceSettings from './custom_terms_of_service_settings';
+import GetHelp from './get_help';
 
 import * as DefinitionConstants from './admin_definition_constants';
 
@@ -3973,6 +3974,24 @@ const AdminDefinition = {
                 id: 'TermsOfServiceSettings',
                 component: CustomTermsOfServiceSettings,
             },
+        },
+    },
+    support: {
+        icon: 'fa-life-ring',
+        sectionTitle: t('admin.sidebar.support'),
+        sectionTitleDefault: 'Support',
+        get_help: {
+            url: 'support/get_help',
+            title: t('admin.sidebar.getHelp'),
+            title_default: 'Get Help',
+            // isHidden: it.isnt(it.licensedForFeature('SupportFlare')),
+            searchableStrings: [
+                'admin.support.getHelpTitle',
+            ],
+            schema: {
+                id: 'GetHelp',
+                component: GetHelp,
+            }
         },
     },
     experimental: {
