@@ -66,11 +66,11 @@ export default class GetHelp extends AdminSettings {
                             />
                         }
                         type={'textarea'}
-                        placeholder={Utils.localizeMessage('admin.support.flare.body.default', 'Please describe your issue here as detailed as possible.')}
+                        placeholder={Utils.localizeMessage('admin.support.flare.body.default', 'E.g.: "After changing our LDAP group filter some users keep getting disabled and can\'t login anymore."')}
                         helpText={
                             <FormattedMessage
                                 id='admin.support.flare.body.description'
-                                defaultMessage='Describe your issue.'
+                                defaultMessage='Describe your issue as detailed as possible. Important diagnostic files such as the server config and logs will be sanitized, compressed and attached automatically.'
                             />
                         }
                     />
@@ -82,7 +82,7 @@ export default class GetHelp extends AdminSettings {
                                 defaultMessage='Response Email Address:'
                             />
                         }
-                        placeholder={Utils.localizeMessage('admin.support.flare.email.placeholder', 'E.g.: "10"')}
+                        placeholder={Utils.localizeMessage('admin.support.flare.email.placeholder', 'E.g.: "admin@example.com"')}
                         helpText={
                             <FormattedMessage
                                 id='admin.support.flare.email.description'
