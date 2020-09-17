@@ -6,18 +6,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import Constants from 'utils/constants.jsx';
-import * as SyntaxHighlighting from 'utils/syntax_highlighting.jsx';
+import * as SyntaxHighlighting from 'utils/syntax_highlighting';
 
-import LoadingSpinner from 'components/widgets/loading/loading_spinner.jsx';
+import LoadingSpinner from 'components/widgets/loading/loading_spinner';
 import FileInfoPreview from 'components/file_info_preview';
 
-export default class CodePreview extends React.Component {
+export default class CodePreview extends React.PureComponent {
     constructor(props) {
         super(props);
-
-        this.updateStateFromProps = this.updateStateFromProps.bind(this);
-        this.handleReceivedError = this.handleReceivedError.bind(this);
-        this.handleReceivedCode = this.handleReceivedCode.bind(this);
 
         this.state = {
             code: '',
@@ -28,28 +24,46 @@ export default class CodePreview extends React.Component {
     }
 
     componentDidMount() {
-        this.updateStateFromProps(this.props);
+        this.getCode();
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line camelcase
-        if (this.props.fileUrl !== nextProps.fileUrl) {
-            this.updateStateFromProps(nextProps);
+    static getDerivedStateFromProps(props, state) {
+        if (props.fileUrl !== state.prevFileUrl) {
+            const usedLanguage = SyntaxHighlighting.getLanguageFromFileExtension(props.fileInfo.extension);
+
+            if (!usedLanguage || props.fileInfo.size > Constants.CODE_PREVIEW_MAX_FILE_SIZE) {
+                return {
+                    code: '',
+                    lang: '',
+                    loading: false,
+                    success: false,
+                    prevFileUrl: props.fileUrl,
+                };
+            }
+
+            return {
+                code: '',
+                lang: usedLanguage,
+                loading: true,
+                prevFileUrl: props.fileUrl,
+            };
+        }
+        return null;
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.fileUrl !== prevProps.fileUrl) {
+            this.getCode();
         }
     }
 
-    updateStateFromProps(props) {
-        const usedLanguage = SyntaxHighlighting.getLanguageFromFileExtension(props.fileInfo.extension);
-
-        if (!usedLanguage || props.fileInfo.size > Constants.CODE_PREVIEW_MAX_FILE_SIZE) {
-            this.setState({code: '', lang: '', loading: false, success: false});
+    getCode = () => {
+        if (!this.state.lang || this.props.fileInfo.size > Constants.CODE_PREVIEW_MAX_FILE_SIZE) {
             return;
         }
-
-        this.setState({code: '', lang: usedLanguage, loading: true});
-
         $.ajax({
             async: true,
-            url: props.fileUrl,
+            url: this.props.fileUrl,
             type: 'GET',
             dataType: 'text',
             error: this.handleReceivedError,
@@ -57,7 +71,7 @@ export default class CodePreview extends React.Component {
         });
     }
 
-    handleReceivedCode(data) {
+    handleReceivedCode = (data) => {
         let code = data;
         if (data.nodeName === '#document') {
             code = new XMLSerializer().serializeToString(data);
@@ -69,7 +83,7 @@ export default class CodePreview extends React.Component {
         });
     }
 
-    handleReceivedError() {
+    handleReceivedError = () => {
         this.setState({loading: false, success: false});
     }
 

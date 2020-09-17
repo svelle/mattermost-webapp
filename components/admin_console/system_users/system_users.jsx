@@ -8,16 +8,16 @@ import {debounce} from 'mattermost-redux/actions/helpers';
 import {Permissions} from 'mattermost-redux/constants';
 
 import {getStandardAnalytics} from 'actions/admin_actions.jsx';
-import {Constants, UserSearchOptions, SearchUserTeamFilter, UserFilters} from 'utils/constants.jsx';
+import {Constants, UserSearchOptions, SearchUserTeamFilter, UserFilters} from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 import {t} from 'utils/i18n.jsx';
 import {getUserOptionsFromFilter, searchUserOptionsFromFilter} from 'utils/filter_users';
 
 import LocalizedInput from 'components/localized_input/localized_input';
-import FormattedAdminHeader from 'components/widgets/admin_console/formatted_admin_header.jsx';
+import FormattedAdminHeader from 'components/widgets/admin_console/formatted_admin_header';
 import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx';
 import SystemPermissionGate from 'components/permissions_gates/system_permission_gate';
-import ConfirmModal from 'components/confirm_modal.jsx';
+import ConfirmModal from 'components/confirm_modal';
 import {emitUserLoggedOutEvent} from 'actions/global_actions.jsx';
 
 import SystemUsersList from './list';
@@ -25,7 +25,7 @@ import SystemUsersList from './list';
 const USER_ID_LENGTH = 26;
 const USERS_PER_PAGE = 50;
 
-export default class SystemUsers extends React.Component {
+export default class SystemUsers extends React.PureComponent {
     static propTypes = {
 
         /*
@@ -137,10 +137,10 @@ export default class SystemUsers extends React.Component {
                 getStandardAnalytics(),
             ]);
         } else if (teamId === SearchUserTeamFilter.NO_TEAM) {
-            await loadProfilesWithoutTeam(0, Constants.PROFILE_CHUNK_SIZE);
+            await loadProfilesWithoutTeam(0, Constants.PROFILE_CHUNK_SIZE, options);
         } else {
             await Promise.all([
-                loadProfilesAndTeamMembers(0, Constants.PROFILE_CHUNK_SIZE, teamId),
+                loadProfilesAndTeamMembers(0, Constants.PROFILE_CHUNK_SIZE, teamId, options),
                 getTeamStats(teamId),
             ]);
         }
@@ -179,6 +179,8 @@ export default class SystemUsers extends React.Component {
     }
 
     nextPage = async (page) => {
+        const {teamId, filter} = this.props;
+
         // Paging isn't supported while searching
         const {
             getProfiles,
@@ -186,17 +188,19 @@ export default class SystemUsers extends React.Component {
             loadProfilesAndTeamMembers,
         } = this.props.actions;
 
-        if (this.props.teamId === SearchUserTeamFilter.ALL_USERS) {
-            await getProfiles(page + 1, USERS_PER_PAGE, {});
-        } else if (this.props.teamId === SearchUserTeamFilter.NO_TEAM) {
-            await loadProfilesWithoutTeam(page + 1, USERS_PER_PAGE);
+        const options = getUserOptionsFromFilter(filter);
+
+        if (teamId === SearchUserTeamFilter.ALL_USERS) {
+            await getProfiles(page + 1, USERS_PER_PAGE, options);
+        } else if (teamId === SearchUserTeamFilter.NO_TEAM) {
+            await loadProfilesWithoutTeam(page + 1, USERS_PER_PAGE, options);
         } else {
-            await loadProfilesAndTeamMembers(page + 1, USERS_PER_PAGE, this.props.teamId);
+            await loadProfilesAndTeamMembers(page + 1, USERS_PER_PAGE, teamId, options);
         }
         this.setState({loading: false});
     }
 
-    doSearch = debounce(async (term, teamId, filter = this.props.filter) => {
+    doSearch = debounce(async (term, teamId = this.props.teamId, filter = this.props.filter) => {
         if (!term) {
             return;
         }
@@ -218,7 +222,7 @@ export default class SystemUsers extends React.Component {
         }
 
         this.setState({loading: false});
-    }, Constants.SEARCH_TIMEOUT_MILLISECONDS, true);
+    }, Constants.SEARCH_TIMEOUT_MILLISECONDS);
 
     getUserById = async (id) => {
         if (this.props.users[id]) {
@@ -297,7 +301,6 @@ export default class SystemUsers extends React.Component {
                 <div className='system-users__filter'>
                     <LocalizedInput
                         id='searchUsers'
-                        ref='filter'
                         className='form-control filter-textbox'
                         placeholder={{id: t('filtered_user_list.search'), defaultMessage: 'Search users'}}
                         onInput={doSearch}
@@ -328,6 +331,7 @@ export default class SystemUsers extends React.Component {
                         />
                     </span>
                     <select
+                        id='selectUserStatus'
                         className='form-control system-users__filter'
                         value={this.props.filter}
                         onChange={this.handleFilterChange}
@@ -377,7 +381,7 @@ export default class SystemUsers extends React.Component {
                         </div>
                         <SystemPermissionGate permissions={[Permissions.REVOKE_USER_ACCESS_TOKEN]}>
                             {revokeAllUsersModal}
-                            <div className='padding-top padding-bottom x2'>
+                            <div className='pt-3 pb-3'>
                                 <button
                                     id='revoke-all-users'
                                     className='btn btn-default'

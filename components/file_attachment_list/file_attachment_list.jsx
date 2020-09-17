@@ -6,14 +6,14 @@ import React from 'react';
 
 import {sortFileInfos} from 'mattermost-redux/utils/file_utils';
 
-import {FileTypes} from 'utils/constants.jsx';
+import {FileTypes} from 'utils/constants';
 import {getFileType} from 'utils/utils';
 
 import FileAttachment from 'components/file_attachment';
 import SingleImageView from 'components/single_image_view';
 import ViewImageModal from 'components/view_image';
 
-export default class FileAttachmentList extends React.Component {
+export default class FileAttachmentList extends React.PureComponent {
     static propTypes = {
 
         /*
@@ -40,12 +40,10 @@ export default class FileAttachmentList extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleImageClick = this.handleImageClick.bind(this);
-
         this.state = {showPreviewModal: false, startImgIndex: 0};
     }
 
-    handleImageClick(indexClicked) {
+    handleImageClick = (indexClicked) => {
         this.setState({showPreviewModal: true, startImgIndex: indexClicked});
     }
 
@@ -62,24 +60,23 @@ export default class FileAttachmentList extends React.Component {
             locale,
         } = this.props;
 
-        if (compactDisplay === false) {
-            if (fileInfos && fileInfos.length === 1) {
-                const fileType = getFileType(fileInfos[0].extension);
+        if (fileInfos && fileInfos.length === 1) {
+            const fileType = getFileType(fileInfos[0].extension);
 
-                if (fileType === FileTypes.IMAGE || (fileType === FileTypes.SVG && enableSVGs)) {
-                    return (
-                        <SingleImageView
-                            fileInfo={fileInfos[0]}
-                            isEmbedVisible={this.props.isEmbedVisible}
-                            postId={this.props.post.id}
-                        />
-                    );
-                }
-            } else if (fileCount === 1 && this.props.isEmbedVisible) {
+            if (fileType === FileTypes.IMAGE || (fileType === FileTypes.SVG && enableSVGs)) {
                 return (
-                    <div style={style.minHeightPlaceholder}/>
+                    <SingleImageView
+                        fileInfo={fileInfos[0]}
+                        isEmbedVisible={this.props.isEmbedVisible}
+                        postId={this.props.post.id}
+                        compactDisplay={compactDisplay}
+                    />
                 );
             }
+        } else if (fileCount === 1 && this.props.isEmbedVisible) {
+            return (
+                <div style={style.minHeightPlaceholder}/>
+            );
         }
 
         const sortedFileInfos = sortFileInfos(fileInfos, locale);
@@ -94,7 +91,7 @@ export default class FileAttachmentList extends React.Component {
                         index={i}
                         handleImageClick={this.handleImageClick}
                         compactDisplay={compactDisplay}
-                    />
+                    />,
                 );
             }
         } else if (fileCount > 0) {
@@ -104,14 +101,17 @@ export default class FileAttachmentList extends React.Component {
                     <div
                         key={`fileCount-${i}`}
                         className='post-image__column post-image__column--placeholder'
-                    />
+                    />,
                 );
             }
         }
 
         return (
             <React.Fragment>
-                <div className='post-image__columns clearfix'>
+                <div
+                    data-testid='fileAttachmentList'
+                    className='post-image__columns clearfix'
+                >
                     {postFiles}
                 </div>
                 <ViewImageModal

@@ -1,16 +1,15 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
-import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
-import * as UserAgent from 'utils/user_agent.jsx';
 import deferComponentRender from 'components/deferComponentRender';
 import ChannelHeader from 'components/channel_header';
 import CreatePost from 'components/create_post';
-import FileUploadOverlay from 'components/file_upload_overlay.jsx';
+import FileUploadOverlay from 'components/file_upload_overlay';
 import PostView from 'components/post_view';
 import TutorialView from 'components/tutorial';
 import {clearMarks, mark, measure, trackEvent} from 'actions/diagnostics_actions.jsx';
@@ -20,8 +19,12 @@ export default class ChannelView extends React.PureComponent {
     static propTypes = {
         channelId: PropTypes.string.isRequired,
         deactivatedChannel: PropTypes.bool.isRequired,
+        channelRolesLoading: PropTypes.bool.isRequired,
         match: PropTypes.shape({
             url: PropTypes.string.isRequired,
+            params: PropTypes.shape({
+                postid: PropTypes.string,
+            }).isRequired,
         }).isRequired,
         showTutorial: PropTypes.bool.isRequired,
         channelIsArchived: PropTypes.bool.isRequired,
@@ -31,14 +34,8 @@ export default class ChannelView extends React.PureComponent {
         }),
     };
 
-    constructor(props) {
-        super(props);
-
-        this.createDeferredPostView();
-    }
-
-    createDeferredPostView = () => {
-        this.deferredPostView = deferComponentRender(
+    static createDeferredPostView = () => {
+        return deferComponentRender(
             PostView,
             <div
                 id='post-list'
@@ -46,36 +43,41 @@ export default class ChannelView extends React.PureComponent {
                 data-a11y-sort-order='1'
                 data-a11y-focus-child={true}
                 data-a11y-order-reversed={true}
-            />
+            />,
         );
     }
 
-    componentDidMount() {
-        const platform = window.navigator.platform;
+    static getDerivedStateFromProps(props, state) {
+        let updatedState = {};
+        const focusedPostId = props.match.params.postid;
 
-        $('body').addClass('app__body');
-
-        // IE Detection
-        if (UserAgent.isInternetExplorer() || UserAgent.isEdge()) {
-            $('body').addClass('browser--ie');
+        if (props.match.url !== state.url && props.channelId !== state.channelId) {
+            updatedState = {deferredPostView: ChannelView.createDeferredPostView(), url: props.match.url, focusedPostId};
         }
 
-        // OS Detection
-        if (platform === 'Win32' || platform === 'Win64') {
-            $('body').addClass('os--windows');
-        } else if (platform === 'MacIntel' || platform === 'MacPPC') {
-            $('body').addClass('os--mac');
+        if (props.channelId !== state.channelId) {
+            updatedState = {...updatedState, channelId: props.channelId, focusedPostId};
         }
+
+        if (focusedPostId && focusedPostId !== state.focusedPostId) {
+            updatedState = {...updatedState, focusedPostId};
+        }
+
+        if (Object.keys(updatedState).length) {
+            return updatedState;
+        }
+
+        return null;
     }
 
-    componentWillUnmount() {
-        $('body').removeClass('app__body');
-    }
+    constructor(props) {
+        super(props);
 
-    UNSAFE_componentWillReceiveProps(nextProps) { // eslint-disable-line camelcase
-        if (this.props.match.url !== nextProps.match.url) {
-            this.createDeferredPostView();
-        }
+        this.state = {
+            url: props.match.url,
+            channelId: props.channelId,
+            deferredPostView: ChannelView.createDeferredPostView(),
+        };
     }
 
     getChannelView = () => {
@@ -125,47 +127,68 @@ export default class ChannelView extends React.PureComponent {
         if (this.props.deactivatedChannel) {
             createPost = (
                 <div
-                    className='post-create-message'
+                    className='post-create__container'
+                    id='post-create'
                 >
-                    <FormattedMessage
-                        id='create_post.deactivated'
-                        defaultMessage='You are viewing an archived channel with a deactivated user.'
-                    />
+                    <div
+                        className='channel-archived__message'
+                    >
+                        <FormattedMarkdownMessage
+                            id='create_post.deactivated'
+                            defaultMessage='You are viewing an archived channel with a **deactivated user**. New messages cannot be posted.'
+                        />
+                        <button
+                            className='btn btn-primary channel-archived__close-btn'
+                            onClick={this.onClickCloseChannel}
+                        >
+                            <FormattedMessage
+                                id='center_panel.archived.closeChannel'
+                                defaultMessage='Close Channel'
+                            />
+                        </button>
+                    </div>
                 </div>
             );
-        } else {
+        } else if (channelIsArchived) {
             createPost = (
                 <div
                     className='post-create__container'
                     id='post-create'
                 >
-                    {!channelIsArchived &&
-                        <CreatePost
-                            getChannelView={this.getChannelView}
+                    <div
+                        id='channelArchivedMessage'
+                        className='channel-archived__message'
+                    >
+                        <FormattedMarkdownMessage
+                            id='archivedChannelMessage'
+                            defaultMessage='You are viewing an **archived channel**. New messages cannot be posted.'
                         />
-                    }
-                    {channelIsArchived &&
-                        <div className='channel-archived__message'>
-                            <FormattedMarkdownMessage
-                                id='archivedChannelMessage'
-                                defaultMessage='You are viewing an **archived channel**. New messages cannot be posted.'
+                        <button
+                            className='btn btn-primary channel-archived__close-btn'
+                            onClick={this.onClickCloseChannel}
+                        >
+                            <FormattedMessage
+                                id='center_panel.archived.closeChannel'
+                                defaultMessage='Close Channel'
                             />
-                            <button
-                                className='btn btn-primary channel-archived__close-btn'
-                                onClick={this.onClickCloseChannel}
-                            >
-                                <FormattedMessage
-                                    id='center_panel.archived.closeChannel'
-                                    defaultMessage='Close Channel'
-                                />
-                            </button>
-                        </div>
-                    }
+                        </button>
+                    </div>
+                </div>
+            );
+        } else if (!this.props.channelRolesLoading) {
+            createPost = (
+                <div
+                    className='post-create__container'
+                    id='post-create'
+                >
+                    <CreatePost
+                        getChannelView={this.getChannelView}
+                    />
                 </div>
             );
         }
 
-        const DeferredPostView = this.deferredPostView;
+        const DeferredPostView = this.state.deferredPostView;
 
         return (
             <div
@@ -179,9 +202,11 @@ export default class ChannelView extends React.PureComponent {
                 />
                 <DeferredPostView
                     channelId={this.props.channelId}
+                    focusedPostId={this.state.focusedPostId}
                 />
                 {createPost}
             </div>
         );
     }
 }
+/* eslint-enable react/no-string-refs */

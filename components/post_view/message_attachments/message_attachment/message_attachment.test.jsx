@@ -4,6 +4,8 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
+import {Constants} from 'utils/constants';
+
 import ExternalImage from 'components/external_image';
 import MessageAttachment from 'components/post_view/message_attachments/message_attachment/message_attachment.jsx';
 
@@ -19,11 +21,14 @@ describe('components/post_view/MessageAttachment', () => {
         image_url: 'image_url',
         thumb_url: 'thumb_url',
         color: '#FFF',
+        footer: 'footer',
+        footer_icon: 'footer_icon',
     };
 
     const baseProps = {
         postId: 'post_id',
         attachment,
+        currentRelativeTeamUrl: 'dummy_team',
         actions: {doPostActionWithCookie: jest.fn()},
         imagesMetadata: {
             image_url: {
@@ -75,7 +80,8 @@ describe('components/post_view/MessageAttachment', () => {
     });
 
     test('should call actions.doPostActionWithCookie on handleAction', () => {
-        const doPostActionWithCookie = jest.fn();
+        const promise = Promise.resolve(123);
+        const doPostActionWithCookie = jest.fn(() => promise);
         const actionId = 'action_id_1';
         const newAttachment = {
             ...attachment,
@@ -120,14 +126,19 @@ describe('components/post_view/MessageAttachment', () => {
                 author_icon: 'http://example.com/author.png',
                 image_url: 'http://example.com/image.png',
                 thumb_url: 'http://example.com/thumb.png',
+
+                // footer_icon is only rendered if footer is provided
+                footer: attachment.footer,
+                footer_icon: 'http://example.com/footer.png',
             },
         };
 
         const wrapper = shallow(<MessageAttachment {...props}/>);
 
-        expect(wrapper.find(ExternalImage)).toHaveLength(3);
+        expect(wrapper.find(ExternalImage)).toHaveLength(4);
         expect(wrapper.find(ExternalImage).find({src: props.attachment.author_icon}).exists()).toBe(true);
         expect(wrapper.find(ExternalImage).find({src: props.attachment.image_url}).exists()).toBe(true);
+        expect(wrapper.find(ExternalImage).find({src: props.attachment.footer_icon}).exists()).toBe(true);
         expect(wrapper.find(ExternalImage).find({src: props.attachment.thumb_url}).exists()).toBe(true);
     });
 
@@ -162,6 +173,34 @@ describe('components/post_view/MessageAttachment', () => {
             ...baseProps,
             attachment: {
                 title: 'Do you like https://mattermost.com?',
+            },
+        };
+
+        const wrapper = shallow(<MessageAttachment {...props}/>);
+
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('should match snapshot when no footer is provided (even if footer_icon is provided)', () => {
+        const props = {
+            ...baseProps,
+            attachment: {
+                ...attachment,
+                footer: undefined,
+            },
+        };
+
+        const wrapper = shallow(<MessageAttachment {...props}/>);
+
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('should match snapshot when the footer is truncated', () => {
+        const props = {
+            ...baseProps,
+            attachment: {
+                title: 'footer',
+                footer: 'a'.repeat(Constants.MAX_ATTACHMENT_FOOTER_LENGTH + 1),
             },
         };
 

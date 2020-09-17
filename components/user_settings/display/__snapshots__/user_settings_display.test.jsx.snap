@@ -58,7 +58,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -82,7 +81,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -99,7 +97,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -116,11 +113,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -133,7 +129,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -151,10 +146,20 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMax
         containerStyle=""
+        extraInfo={null}
         infoPosition="bottom"
         inputs={
           Array [
-            <div>
+            <fieldset>
+              <legend
+                className="form-legend hidden-label"
+              >
+                <FormattedMessage
+                  defaultMessage="Channel Display"
+                  id="user.settings.display.channelDisplayTitle"
+                  values={Object {}}
+                />
+              </legend>
               <div
                 className="radio"
               >
@@ -201,7 +206,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
                   values={Object {}}
                 />
               </div>
-            </div>,
+            </fieldset>,
           ]
         }
         saving={false}
@@ -223,7 +228,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -302,10 +306,20 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMax
         containerStyle=""
+        extraInfo={null}
         infoPosition="bottom"
         inputs={
           Array [
-            <div>
+            <fieldset>
+              <legend
+                className="form-legend hidden-label"
+              >
+                <FormattedMessage
+                  defaultMessage="Clock Display"
+                  id="user.settings.display.clockDisplay"
+                  values={Object {}}
+                />
+              </legend>
               <div
                 className="radio"
               >
@@ -352,7 +366,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
                   values={Object {}}
                 />
               </div>
-            </div>,
+            </fieldset>,
           ]
         }
         saving={false}
@@ -380,7 +394,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -397,7 +410,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -414,11 +426,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -431,7 +442,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -448,7 +458,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -466,7 +475,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -544,7 +552,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -568,7 +575,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -585,7 +591,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -603,10 +608,20 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMax
         containerStyle=""
+        extraInfo={null}
         infoPosition="bottom"
         inputs={
           Array [
-            <div>
+            <fieldset>
+              <legend
+                className="form-legend hidden-label"
+              >
+                <FormattedMessage
+                  defaultMessage="Default Appearance of Image Previews"
+                  id="user.settings.display.collapseDisplay"
+                  values={Object {}}
+                />
+              </legend>
               <div
                 className="radio"
               >
@@ -653,7 +668,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
                   values={Object {}}
                 />
               </div>
-            </div>,
+            </fieldset>,
           ]
         }
         saving={false}
@@ -661,7 +676,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
         submit={[Function]}
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -674,7 +689,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -691,7 +705,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -709,7 +722,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -787,7 +799,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -811,7 +822,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -828,7 +838,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -845,11 +854,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -862,7 +870,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -879,7 +886,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -977,7 +983,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -1001,7 +1006,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -1018,11 +1022,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -1035,7 +1038,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -1052,7 +1054,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -1070,7 +1071,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -1148,7 +1148,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -1172,7 +1171,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -1190,10 +1188,20 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMax
         containerStyle=""
+        extraInfo={null}
         infoPosition="bottom"
         inputs={
           Array [
-            <div>
+            <fieldset>
+              <legend
+                className="form-legend hidden-label"
+              >
+                <FormattedMessage
+                  defaultMessage="Website Link Previews"
+                  id="user.settings.display.linkPreviewDisplay"
+                  values={Object {}}
+                />
+              </legend>
               <div
                 className="radio"
               >
@@ -1240,7 +1248,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
                   values={Object {}}
                 />
               </div>
-            </div>,
+            </fieldset>,
           ]
         }
         saving={false}
@@ -1261,11 +1269,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -1278,7 +1285,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -1295,7 +1301,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -1313,7 +1318,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -1391,7 +1395,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -1415,7 +1418,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -1432,7 +1434,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -1449,11 +1450,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -1467,10 +1467,20 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMax
         containerStyle=""
+        extraInfo={null}
         infoPosition="bottom"
         inputs={
           Array [
-            <div>
+            <fieldset>
+              <legend
+                className="form-legend hidden-label"
+              >
+                <FormattedMessage
+                  defaultMessage="Message Display"
+                  id="user.settings.display.messageDisplayTitle"
+                  values={Object {}}
+                />
+              </legend>
               <div
                 className="radio"
               >
@@ -1537,7 +1547,7 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
                   values={Object {}}
                 />
               </div>
-            </div>,
+            </fieldset>,
           ]
         }
         saving={false}
@@ -1558,7 +1568,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -1576,7 +1585,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -1654,7 +1662,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -1678,7 +1685,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -1695,7 +1701,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -1712,11 +1717,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -1729,7 +1733,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -1746,7 +1749,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -1764,7 +1766,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -1842,7 +1843,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -1866,7 +1866,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -1883,7 +1882,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -1900,11 +1898,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -1917,7 +1914,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -1934,7 +1930,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -1952,7 +1947,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -2030,7 +2024,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -2054,7 +2047,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -2071,7 +2063,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -2088,11 +2079,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -2105,7 +2095,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -2122,7 +2111,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -2140,7 +2128,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -2218,7 +2205,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <Connect(ThemeSetting)
-        focused={false}
         selected={true}
         setEnforceFocus={[MockFunction]}
         setRequireConfirm={[MockFunction]}
@@ -2230,7 +2216,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -2254,7 +2239,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -2271,7 +2255,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -2288,11 +2271,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -2305,7 +2287,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -2322,7 +2303,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -2340,7 +2320,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage
@@ -2418,7 +2397,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     />
     <div>
       <SettingItemMin
-        focused={false}
         section="clock"
         title={
           <FormattedMessage
@@ -2442,7 +2420,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
             values={Object {}}
           />
         }
-        focused={true}
         section="name_format"
         title={
           <FormattedMessage
@@ -2459,7 +2436,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="linkpreview"
         title={
           <FormattedMessage
@@ -2476,11 +2452,10 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={true}
         section="collapse"
         title={
           <FormattedMessage
-            defaultMessage="Default appearance of image previews"
+            defaultMessage="Default Appearance of Image Previews"
             id="user.settings.display.collapseDisplay"
             values={Object {}}
           />
@@ -2493,7 +2468,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="message_display"
         title={
           <FormattedMessage
@@ -2510,7 +2484,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     </div>
     <div>
       <SettingItemMin
-        focused={false}
         section="channel_display_mode"
         title={
           <FormattedMessage
@@ -2528,7 +2501,6 @@ exports[`components/user_settings/display/UserSettingsDisplay should match snaps
     <div>
       <SettingItemMin
         describe="English"
-        focused={false}
         section="languages"
         title={
           <FormattedMessage

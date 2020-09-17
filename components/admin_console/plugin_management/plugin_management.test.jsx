@@ -15,6 +15,11 @@ describe('components/PluginManagement', () => {
                 Enable: true,
                 EnableUploads: true,
                 AllowInsecureDownloadUrl: false,
+                EnableMarketplace: true,
+                EnableRemoteMarketplace: true,
+                AutomaticPrepackagedPlugins: true,
+                MarketplaceUrl: 'marketplace.example.com',
+                RequirePluginSignature: false,
             },
             ExperimentalSettings: {
                 RestrictSystemAdmin: false,
@@ -27,7 +32,6 @@ describe('components/PluginManagement', () => {
                 state: PluginState.PLUGIN_STATE_NOT_RUNNING,
                 name: 'Plugin 0',
                 description: 'The plugin 0.',
-                is_prepackaged: false,
                 active: false,
                 instances: [
                     {
@@ -43,7 +47,6 @@ describe('components/PluginManagement', () => {
                 state: PluginState.PLUGIN_STATE_STOPPING,
                 name: 'Plugin 1',
                 description: 'The plugin.',
-                is_prepackaged: false,
                 active: true,
                 instances: [
                     {
@@ -133,6 +136,51 @@ describe('components/PluginManagement', () => {
         expect(wrapper).toMatchSnapshot();
     });
 
+    test('should match snapshot when `Require Signature Plugin` is true', () => {
+        const props = {
+            ...defaultProps,
+            config: {
+                ...defaultProps.config,
+                PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
+                    RequirePluginSignature: true,
+                },
+            },
+        };
+        const wrapper = shallow(<PluginManagement {...props}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('should match snapshot when `Enable Marketplace` is false', () => {
+        const props = {
+            ...defaultProps,
+            config: {
+                ...defaultProps.config,
+                PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
+                    EnableMarketplace: false,
+                },
+            },
+        };
+        const wrapper = shallow(<PluginManagement {...props}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('should match snapshot when `Enable Remote Marketplace` is false', () => {
+        const props = {
+            ...defaultProps,
+            config: {
+                ...defaultProps.config,
+                PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
+                    EnableRemoteMarketplace: false,
+                },
+            },
+        };
+        const wrapper = shallow(<PluginManagement {...props}/>);
+        expect(wrapper).toMatchSnapshot();
+    });
+
     test('should match snapshot, upload disabled', () => {
         const props = {
             ...defaultProps,
@@ -176,6 +224,7 @@ describe('components/PluginManagement', () => {
             config: {
                 ...defaultProps.config,
                 PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
                     Enable: true,
                     EnableUploads: true,
                     AllowInsecureDownloadUrl: false,
@@ -209,6 +258,7 @@ describe('components/PluginManagement', () => {
             config: {
                 ...defaultProps.config,
                 PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
                     Enable: true,
                     EnableUploads: true,
                     AllowInsecureDownloadUrl: false,
@@ -221,7 +271,6 @@ describe('components/PluginManagement', () => {
                     state: PluginState.PLUGIN_STATE_NOT_RUNNING,
                     name: 'Plugin 0',
                     description: 'The plugin 0.',
-                    is_prepackaged: false,
                     active: false,
                     instances: [
                         {
@@ -237,7 +286,6 @@ describe('components/PluginManagement', () => {
                     state: PluginState.PLUGIN_STATE_STOPPING,
                     name: 'Plugin 1',
                     description: 'The plugin.',
-                    is_prepackaged: false,
                     active: true,
                     instances: [
                         {
@@ -293,6 +341,7 @@ describe('components/PluginManagement', () => {
             config: {
                 ...defaultProps.config,
                 PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
                     Enable: true,
                     EnableUploads: true,
                     AllowInsecureDownloadUrl: false,
@@ -305,7 +354,6 @@ describe('components/PluginManagement', () => {
                     state: PluginState.PLUGIN_STATE_NOT_RUNNING,
                     name: 'Plugin 0',
                     description: 'The plugin 0.',
-                    is_prepackaged: false,
                     active: false,
                     instances: [
                         {
@@ -349,6 +397,7 @@ describe('components/PluginManagement', () => {
             config: {
                 ...defaultProps.config,
                 PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
                     Enable: true,
                     EnableUploads: true,
                     AllowInsecureDownloadUrl: false,
@@ -361,7 +410,6 @@ describe('components/PluginManagement', () => {
                     state: PluginState.PLUGIN_STATE_NOT_RUNNING,
                     name: 'Plugin 0',
                     description: 'The plugin 0.',
-                    is_prepackaged: false,
                     active: false,
                     instances: [
                         {
@@ -405,6 +453,7 @@ describe('components/PluginManagement', () => {
             config: {
                 ...defaultProps.config,
                 PluginSettings: {
+                    ...defaultProps.config.PluginSettings,
                     Enable: true,
                     EnableUploads: true,
                     AllowInsecureDownloadUrl: false,
@@ -417,7 +466,6 @@ describe('components/PluginManagement', () => {
                     state: PluginState.PLUGIN_STATE_NOT_RUNNING,
                     name: 'Plugin 0',
                     description: 'The plugin 0.',
-                    is_prepackaged: false,
                     active: false,
                     instances: [
                         {

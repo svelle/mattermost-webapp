@@ -1,12 +1,13 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
 import {getTimezoneRegion} from 'mattermost-redux/utils/timezone_utils';
 import {FormattedMessage} from 'react-intl';
 
-import Constants from 'utils/constants.jsx';
+import Constants from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 import {getBrowserTimezone} from 'utils/timezone.jsx';
 
@@ -14,7 +15,7 @@ import * as I18n from 'i18n/i18n.jsx';
 import {t} from 'utils/i18n';
 
 import SettingItemMax from 'components/setting_item_max.jsx';
-import SettingItemMin from 'components/setting_item_min.jsx';
+import SettingItemMin from 'components/setting_item_min';
 import ThemeSetting from 'components/user_settings/display/user_settings_theme';
 import BackIcon from 'components/widgets/icons/fa_back_icon';
 
@@ -34,12 +35,11 @@ function getDisplayStateFromProps(props) {
     };
 }
 
-export default class UserSettingsDisplay extends React.Component {
+export default class UserSettingsDisplay extends React.PureComponent {
     static propTypes = {
         user: PropTypes.object,
         updateSection: PropTypes.func,
         activeSection: PropTypes.string,
-        prevActiveSection: PropTypes.string,
         closeModal: PropTypes.func.isRequired,
         collapseModal: PropTypes.func.isRequired,
         setRequireConfirm: PropTypes.func.isRequired,
@@ -60,6 +60,7 @@ export default class UserSettingsDisplay extends React.Component {
         messageDisplay: PropTypes.string,
         collapseDisplay: PropTypes.string,
         linkPreviewDisplay: PropTypes.string,
+        lockTeammateNameDisplay: PropTypes.bool,
         actions: PropTypes.shape({
             getSupportedTimezones: PropTypes.func.isRequired,
             autoUpdateTimezone: PropTypes.func.isRequired,
@@ -94,6 +95,12 @@ export default class UserSettingsDisplay extends React.Component {
 
         if (enableTimezone && shouldAutoUpdateTimezone) {
             actions.autoUpdateTimezone(getBrowserTimezone());
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.teammateNameDisplay !== prevProps.teammateNameDisplay) {
+            this.updateState();
         }
     }
 
@@ -205,7 +212,10 @@ export default class UserSettingsDisplay extends React.Component {
             secondOption,
             thirdOption,
             description,
+            disabled,
         } = props;
+        let extraInfo = null;
+        let submit = this.handleSubmit;
 
         const firstMessage = (
             <FormattedMessage
@@ -314,8 +324,11 @@ export default class UserSettingsDisplay extends React.Component {
                 );
             }
 
-            const inputs = [
-                <div key={key}>
+            let inputs = [
+                <fieldset key={key}>
+                    <legend className='form-legend hidden-label'>
+                        {messageTitle}
+                    </legend>
                     <div className='radio'>
                         <label>
                             <input
@@ -351,18 +364,31 @@ export default class UserSettingsDisplay extends React.Component {
                         <br/>
                         {messageDesc}
                     </div>
-                </div>,
+                </fieldset>,
             ];
 
+            if (display === 'teammateNameDisplay' && disabled) {
+                extraInfo = (
+                    <span>
+                        <FormattedMessage
+                            id='user.settings.display.teammateNameDisplay'
+                            defaultMessage='This field is handled through your System Administrator. If you want to change it, you need to do so through your System Administrator.'
+                        />
+                    </span>
+                );
+                submit = null;
+                inputs = [];
+            }
             return (
                 <div>
                     <SettingItemMax
                         title={messageTitle}
                         inputs={inputs}
-                        submit={this.handleSubmit}
+                        submit={submit}
                         saving={this.state.isSaving}
                         server_error={this.state.serverError}
                         updateSection={this.updateSection}
+                        extraInfo={extraInfo}
                     />
                     <div className='divider-dark'/>
                 </div>
@@ -383,7 +409,6 @@ export default class UserSettingsDisplay extends React.Component {
                 <SettingItemMin
                     title={messageTitle}
                     describe={describe}
-                    focused={this.props.prevActiveSection === this.prevSections[section]}
                     section={section}
                     updateSection={this.updateSection}
                 />
@@ -400,7 +425,7 @@ export default class UserSettingsDisplay extends React.Component {
             defaultDisplay: 'false',
             title: {
                 id: t('user.settings.display.collapseDisplay'),
-                message: 'Default appearance of image previews',
+                message: 'Default Appearance of Image Previews',
             },
             firstOption: {
                 value: 'false',
@@ -490,7 +515,7 @@ export default class UserSettingsDisplay extends React.Component {
         const teammateNameDisplaySection = this.createSection({
             section: Preferences.NAME_NAME_FORMAT,
             display: 'teammateNameDisplay',
-            value: this.state.teammateNameDisplay,
+            value: this.props.lockTeammateNameDisplay ? this.props.configTeammateNameDisplay : this.state.teammateNameDisplay,
             defaultDisplay: this.props.configTeammateNameDisplay,
             title: {
                 id: t('user.settings.display.teammateNameDisplayTitle'),
@@ -521,6 +546,7 @@ export default class UserSettingsDisplay extends React.Component {
                 id: t('user.settings.display.teammateNameDisplayDescription'),
                 message: 'Set how to display other user\'s names in posts and the Direct Messages list.',
             },
+            disabled: this.props.lockTeammateNameDisplay,
         });
 
         let timezoneSelection;
@@ -658,7 +684,6 @@ export default class UserSettingsDisplay extends React.Component {
                         }
                         width='medium'
                         describe={locale}
-                        focused={this.props.prevActiveSection === this.prevSections.languages}
                         section={'languages'}
                         updateSection={this.updateSection}
                     />
@@ -681,7 +706,6 @@ export default class UserSettingsDisplay extends React.Component {
                         setRequireConfirm={this.props.setRequireConfirm}
                         setEnforceFocus={this.props.setEnforceFocus}
                         allowCustomThemes={this.props.allowCustomThemes}
-                        focused={this.props.prevActiveSection === this.prevSections.theme}
                     />
                     <div className='divider-dark'/>
                 </div>
@@ -741,3 +765,4 @@ export default class UserSettingsDisplay extends React.Component {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

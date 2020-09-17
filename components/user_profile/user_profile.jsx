@@ -3,29 +3,32 @@
 
 import PropTypes from 'prop-types';
 import React, {PureComponent} from 'react';
-import {OverlayTrigger} from 'react-bootstrap';
 
 import {imageURLForUser, isMobile, isGuest} from 'utils/utils.jsx';
 
+import OverlayTrigger from 'components/overlay_trigger';
 import ProfilePopover from 'components/profile_popover';
-import BotBadge from 'components/widgets/badges/bot_badge.jsx';
-import GuestBadge from 'components/widgets/badges/guest_badge.jsx';
+import BotBadge from 'components/widgets/badges/bot_badge';
+import GuestBadge from 'components/widgets/badges/guest_badge';
 
 export default class UserProfile extends PureComponent {
     static propTypes = {
         disablePopover: PropTypes.bool,
         displayName: PropTypes.string,
+        displayUsername: PropTypes.bool,
         hasMention: PropTypes.bool,
         hideStatus: PropTypes.bool,
         isBusy: PropTypes.bool,
         isRHS: PropTypes.bool,
         overwriteName: PropTypes.node,
+        overwriteIcon: PropTypes.node,
         user: PropTypes.object,
         userId: PropTypes.string,
     };
 
     static defaultProps = {
         disablePopover: false,
+        displayUsername: false,
         hasMention: false,
         hideStatus: false,
         isRHS: false,
@@ -34,23 +37,37 @@ export default class UserProfile extends PureComponent {
     };
 
     hideProfilePopover = () => {
-        this.refs.overlay.hide();
+        if (this.overlay) {
+            this.overlay.hide();
+        }
+    }
+
+    setOverlaynRef = (ref) => {
+        this.overlay = ref;
     }
 
     render() {
         const {
             disablePopover,
             displayName,
+            displayUsername,
             isBusy,
             isRHS,
             hasMention,
             hideStatus,
             overwriteName,
+            overwriteIcon,
             user,
             userId,
         } = this.props;
 
-        const name = overwriteName || displayName || '...';
+        let name;
+        if (displayUsername) {
+            name = `@${(user.username)}`;
+        } else {
+            name = overwriteName || displayName || '...';
+        }
+
         if (disablePopover) {
             return <div className='user-popover'>{name}</div>;
         }
@@ -62,18 +79,19 @@ export default class UserProfile extends PureComponent {
 
         let profileImg = '';
         if (user) {
-            profileImg = imageURLForUser(user);
+            profileImg = imageURLForUser(user.id, user.last_picture_update);
         }
 
         return (
             <React.Fragment>
                 <OverlayTrigger
-                    ref='overlay'
+                    ref={this.setOverlaynRef}
                     trigger='click'
                     placement={placement}
                     rootClose={true}
                     overlay={
                         <ProfilePopover
+                            className='user-profile-popover'
                             userId={userId}
                             src={profileImg}
                             isBusy={isBusy}
@@ -81,6 +99,8 @@ export default class UserProfile extends PureComponent {
                             hideStatus={hideStatus}
                             isRHS={isRHS}
                             hasMention={hasMention}
+                            overwriteName={overwriteName}
+                            overwriteIcon={overwriteIcon}
                         />
                     }
                 >

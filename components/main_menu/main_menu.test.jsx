@@ -3,9 +3,9 @@
 
 import React from 'react';
 
-import {Constants} from 'utils/constants.jsx';
+import {shallowWithIntl} from 'tests/helpers/intl-test-helper';
 
-import {shallowWithIntl} from 'tests/helpers/intl-test-helper.jsx';
+import {Constants} from 'utils/constants';
 
 import MainMenu from './main_menu.jsx';
 
@@ -19,12 +19,15 @@ describe('components/Menu', () => {
         appDownloadLink: null,
         enableCommands: false,
         enableCustomEmoji: false,
-        canCreateOrDeleteCustomEmoji: false,
         enableIncomingWebhooks: false,
         enableOAuthServiceProvider: false,
         enableOutgoingWebhooks: false,
+        canManageSystemBots: false,
+        canCreateOrDeleteCustomEmoji: false,
+        canManageIntegrations: true,
         enableUserCreation: false,
         enableEmailInvitations: false,
+        enablePluginMarketplace: false,
         experimentalPrimaryTeam: null,
         helpLink: null,
         reportAProblemLink: null,
@@ -70,6 +73,7 @@ describe('components/Menu', () => {
             enableOutgoingWebhooks: true,
             enableUserCreation: true,
             enableEmailInvitations: true,
+            enablePluginMarketplace: true,
             experimentalPrimaryTeam: 'test',
             helpLink: 'test-link-help',
             reportAProblemLink: 'test-report-link',
@@ -92,6 +96,7 @@ describe('components/Menu', () => {
             enableOutgoingWebhooks: true,
             enableUserCreation: true,
             enableEmailInvitations: true,
+            enablePluginMarketplace: true,
             experimentalPrimaryTeam: 'test',
             helpLink: 'test-link-help',
             reportAProblemLink: 'test-report-link',
@@ -143,5 +148,56 @@ describe('components/Menu', () => {
         wrapper.setProps({experimentalPrimaryTeam: 'other_name'});
         expect(wrapper.find('#leaveTeam')).toHaveLength(1);
         expect(wrapper.find('#leaveTeam').props().show).toEqual(true);
+    });
+
+    describe('should show integrations', () => {
+        it('when incoming webhooks enabled', () => {
+            const props = {...defaultProps, enableIncomingWebhooks: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(true);
+        });
+
+        it('when outgoing webhooks enabled', () => {
+            const props = {...defaultProps, enableOutgoingWebhooks: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(true);
+        });
+
+        it('when slash commands enabled', () => {
+            const props = {...defaultProps, enableCommands: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(true);
+        });
+
+        it('when oauth providers enabled', () => {
+            const props = {...defaultProps, enableOAuthServiceProvider: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(true);
+        });
+
+        it('when can manage system bots', () => {
+            const props = {...defaultProps, canManageSystemBots: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(true);
+        });
+
+        it('unless mobile', () => {
+            const props = {...defaultProps, mobile: true, canManageSystemBots: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(false);
+        });
+
+        it('unless cannot manage integrations', () => {
+            const props = {...defaultProps, canManageIntegrations: false, enableCommands: true};
+            const wrapper = shallowWithIntl(<MainMenu {...props}/>);
+
+            expect(wrapper.find('#integrations').prop('show')).toBe(false);
+        });
     });
 });

@@ -7,14 +7,14 @@ import {FormattedMessage} from 'react-intl';
 
 import {getEmailInterval} from 'mattermost-redux/utils/notify_props';
 
-import {Preferences} from 'utils/constants.jsx';
+import {Preferences} from 'utils/constants';
 import {localizeMessage} from 'utils/utils.jsx';
 import SettingItemMax from 'components/setting_item_max.jsx';
-import SettingItemMin from 'components/setting_item_min.jsx';
+import SettingItemMin from 'components/setting_item_min';
 
 const SECONDS_PER_MINUTE = 60;
 
-export default class EmailNotificationSetting extends React.Component {
+export default class EmailNotificationSetting extends React.PureComponent {
     static propTypes = {
         currentUserId: PropTypes.string.isRequired,
         activeSection: PropTypes.string.isRequired,
@@ -29,7 +29,6 @@ export default class EmailNotificationSetting extends React.Component {
         focused: PropTypes.bool,
         sendEmailNotifications: PropTypes.bool,
         enableEmailBatching: PropTypes.bool,
-        siteName: PropTypes.string,
         actions: PropTypes.shape({
             savePreferences: PropTypes.func.isRequired,
         }).isRequired,
@@ -43,10 +42,13 @@ export default class EmailNotificationSetting extends React.Component {
             enableEmail,
             enableEmailBatching,
             sendEmailNotifications,
+            activeSection,
         } = props;
 
         this.state = {
+            activeSection,
             emailInterval,
+            enableEmail,
             enableEmailBatching,
             sendEmailNotifications,
             newInterval: getEmailInterval(enableEmail && sendEmailNotifications, enableEmailBatching, emailInterval),
@@ -59,14 +61,30 @@ export default class EmailNotificationSetting extends React.Component {
             enableEmail,
             enableEmailBatching,
             sendEmailNotifications,
+            activeSection,
         } = nextProps;
+
+        // If we're re-opening this section, reset to defaults from props
+        if (activeSection === 'email' && prevState.activeSection !== 'email') {
+            return {
+                activeSection,
+                emailInterval,
+                enableEmail,
+                enableEmailBatching,
+                sendEmailNotifications,
+                newInterval: getEmailInterval(enableEmail && sendEmailNotifications, enableEmailBatching, emailInterval),
+            };
+        }
 
         if (sendEmailNotifications !== prevState.sendEmailNotifications ||
             enableEmailBatching !== prevState.enableEmailBatching ||
-            emailInterval !== prevState.emailInterval
+            emailInterval !== prevState.emailInterval ||
+            activeSection !== prevState.activeSection
         ) {
             return {
+                activeSection,
                 emailInterval,
+                enableEmail,
                 enableEmailBatching,
                 sendEmailNotifications,
                 newInterval: getEmailInterval(enableEmail && sendEmailNotifications, enableEmailBatching, emailInterval),
@@ -89,7 +107,7 @@ export default class EmailNotificationSetting extends React.Component {
 
     handleSubmit = async () => {
         const {newInterval} = this.state;
-        if (this.props.emailInterval === newInterval) {
+        if (this.props.emailInterval === newInterval && this.props.enableEmail === this.state.enableEmail) {
             this.props.updateSection('');
         } else {
             // until the rest of the notification settings are moved to preferences, we have to do this separately
@@ -184,7 +202,7 @@ export default class EmailNotificationSetting extends React.Component {
 
         return (
             <SettingItemMin
-                title={localizeMessage('user.settings.notifications.emailNotifications', 'Email notifications')}
+                title={localizeMessage('user.settings.notifications.emailNotifications', 'Email Notifications')}
                 describe={description}
                 focused={focused}
                 section={'email'}
@@ -197,11 +215,11 @@ export default class EmailNotificationSetting extends React.Component {
         if (!this.props.sendEmailNotifications) {
             return (
                 <SettingItemMax
-                    title={localizeMessage('user.settings.notifications.emailNotifications', 'Email notifications')}
+                    title={localizeMessage('user.settings.notifications.emailNotifications', 'Email Notifications')}
                     inputs={[
                         <div
                             key='oauthEmailInfo'
-                            className='padding-top'
+                            className='pt-2'
                         >
                             <FormattedMessage
                                 id='user.settings.notifications.email.disabled_long'
@@ -270,7 +288,7 @@ export default class EmailNotificationSetting extends React.Component {
 
         return (
             <SettingItemMax
-                title={localizeMessage('user.settings.notifications.emailNotifications', 'Email notifications')}
+                title={localizeMessage('user.settings.notifications.emailNotifications', 'Email Notifications')}
                 inputs={[
                     <fieldset key='userNotificationEmailOptions'>
                         <legend className='form-legend'>
@@ -314,13 +332,10 @@ export default class EmailNotificationSetting extends React.Component {
                                 />
                             </label>
                         </div>
-                        <div className='margin-top x2'>
+                        <div className='mt-3'>
                             <FormattedMessage
                                 id='user.settings.notifications.emailInfo'
-                                defaultMessage='Email notifications are sent for mentions and direct messages when you are offline or away from {siteName} for more than 5 minutes.'
-                                values={{
-                                    siteName: this.props.siteName,
-                                }}
+                                defaultMessage='Email notifications are sent for mentions and direct messages when you are offline or away for more than 5 minutes.'
                             />
                             {' '}
                             {batchingInfo}

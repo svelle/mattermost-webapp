@@ -1,16 +1,17 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
-import Constants from 'utils/constants.jsx';
-import LoadingScreen from 'components/loading_screen.jsx';
+import Constants from 'utils/constants';
+import LoadingScreen from 'components/loading_screen';
 
 import UserListRow from './user_list_row';
 
-export default class UserList extends React.Component {
+export default class UserList extends React.PureComponent {
     static propTypes = {
         users: PropTypes.arrayOf(PropTypes.object),
         extraInfo: PropTypes.object,
@@ -30,13 +31,7 @@ export default class UserList extends React.Component {
         rowComponentType: UserListRow,
     }
 
-    constructor(props) {
-        super(props);
-
-        this.scrollToTop = this.scrollToTop.bind(this);
-    }
-
-    scrollToTop() {
+    scrollToTop = () => {
         if (this.refs.container) {
             this.refs.container.scrollTop = 0;
         }
@@ -70,6 +65,7 @@ export default class UserList extends React.Component {
                 <div
                     key='no-users-found'
                     className='more-modal__placeholder-row'
+                    data-testid='noUsersFound'
                 >
                     <p>
                         <FormattedMessage
@@ -88,3 +84,4 @@ export default class UserList extends React.Component {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

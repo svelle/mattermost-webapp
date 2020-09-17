@@ -5,43 +5,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
 
-import Permissions from 'mattermost-redux/constants/permissions';
 import GeneralConstants from 'mattermost-redux/constants/general';
 
-import ConfirmModal from 'components/confirm_modal.jsx';
+import ConfirmModal from 'components/confirm_modal';
 
-import {PermissionsScope, DefaultRolePermissions} from 'utils/constants.jsx';
+import {PermissionsScope, DefaultRolePermissions} from 'utils/constants';
 import {localizeMessage} from 'utils/utils.jsx';
 import {t} from 'utils/i18n';
 
-import SaveButton from 'components/save_button.jsx';
-import LoadingScreen from 'components/loading_screen.jsx';
-import FormError from 'components/form_error.jsx';
+import SaveButton from 'components/save_button';
+import LoadingScreen from 'components/loading_screen';
+import FormError from 'components/form_error';
 import BlockableLink from 'components/admin_console/blockable_link';
-import AdminPanelTogglable from 'components/widgets/admin_console/admin_panel_togglable.jsx';
+import AdminPanelTogglable from 'components/widgets/admin_console/admin_panel_togglable';
 
 import FormattedMarkdownMessage from 'components/formatted_markdown_message';
 
-import PermissionsTree from '../permissions_tree';
-import GuestPermissionsTree from '../guest_permissions_tree';
+import PermissionsTree, {EXCLUDED_PERMISSIONS} from '../permissions_tree';
+import GuestPermissionsTree, {GUEST_INCLUDED_PERMISSIONS} from '../guest_permissions_tree';
 
-const EXCLUDED_PERMISSIONS = [
-    Permissions.VIEW_MEMBERS,
-    Permissions.JOIN_PUBLIC_TEAMS,
-    Permissions.LIST_PUBLIC_TEAMS,
-    Permissions.JOIN_PRIVATE_TEAMS,
-    Permissions.LIST_PRIVATE_TEAMS,
-];
-
-const GUEST_INCLUDED_PERMISSIONS = [
-    Permissions.CREATE_PRIVATE_CHANNEL,
-    Permissions.EDIT_POST,
-    Permissions.DELETE_POST,
-    Permissions.ADD_REACTION,
-    Permissions.REMOVE_REACTION,
-];
-
-export default class PermissionSystemSchemeSettings extends React.Component {
+export default class PermissionSystemSchemeSettings extends React.PureComponent {
     static propTypes = {
         config: PropTypes.object.isRequired,
         roles: PropTypes.object.isRequired,
@@ -69,6 +52,7 @@ export default class PermissionSystemSchemeSettings extends React.Component {
                 team_admin: true,
                 channel_admin: true,
             },
+            urlParams: new URLSearchParams(props.location.search),
         };
         this.rolesNeeded = [
             GeneralConstants.SYSTEM_ADMIN_ROLE,
@@ -87,6 +71,12 @@ export default class PermissionSystemSchemeSettings extends React.Component {
         this.props.actions.loadRolesIfNeeded(this.rolesNeeded);
         if (this.rolesNeeded.every((roleName) => this.props.roles[roleName])) {
             this.loadRolesIntoState(this.props);
+        }
+
+        if (this.state.urlParams.get('rowIdFromQuery')) {
+            setTimeout(() => {
+                this.selectRow(this.state.urlParams.get('rowIdFromQuery'));
+            }, 1000);
         }
     }
 
@@ -127,7 +117,7 @@ export default class PermissionSystemSchemeSettings extends React.Component {
     }
 
     loadRolesIntoState(props) {
-        const {system_admin, team_admin, channel_admin, system_user, team_user, channel_user, system_guest, team_guest, channel_guest} = props.roles; // eslint-disable-line camelcase
+        const {system_admin, team_admin, channel_admin, system_user, team_user, channel_user, system_guest, team_guest, channel_guest} = props.roles; // eslint-disable-line camelcase, @typescript-eslint/camelcase
         this.setState({
             selectedPermission: null,
             loaded: true,
@@ -229,12 +219,19 @@ export default class PermissionSystemSchemeSettings extends React.Component {
         const systemUserPromise = this.props.actions.editRole(roles.system_user);
         const teamUserPromise = this.props.actions.editRole(roles.team_user);
         const channelUserPromise = this.props.actions.editRole(roles.channel_user);
-        const systemGuestPromise = this.props.actions.editRole(guestRoles.system_guest);
-        const teamGuestPromise = this.props.actions.editRole(guestRoles.team_guest);
-        const channelGuestPromise = this.props.actions.editRole(guestRoles.channel_guest);
+
+        const promises = [teamAdminPromise, channelAdminPromise, systemUserPromise, teamUserPromise, channelUserPromise];
+
+        if (this.haveGuestAccountsPermissions()) {
+            const systemGuestPromise = this.props.actions.editRole(guestRoles.system_guest);
+            const teamGuestPromise = this.props.actions.editRole(guestRoles.team_guest);
+            const channelGuestPromise = this.props.actions.editRole(guestRoles.channel_guest);
+            promises.push(systemGuestPromise, teamGuestPromise, channelGuestPromise);
+        }
+
         this.setState({saving: true});
 
-        const results = await Promise.all([teamAdminPromise, channelAdminPromise, systemUserPromise, teamUserPromise, channelUserPromise, systemGuestPromise, teamGuestPromise, channelGuestPromise]);
+        const results = await Promise.all(promises);
         let serverError = null;
         let saveNeeded = false;
         for (const result of results) {
@@ -282,6 +279,10 @@ export default class PermissionSystemSchemeSettings extends React.Component {
 
         this.setState({roles: newRolesState, saveNeeded: true});
         this.props.actions.setNavigationBlocked(true);
+    }
+
+    haveGuestAccountsPermissions = () => {
+        return this.props.license.GuestAccountsPermissions === 'true';
     }
 
     render = () => {
@@ -333,7 +334,7 @@ export default class PermissionSystemSchemeSettings extends React.Component {
                                     scope={'system_scope'}
                                     onToggle={this.togglePermission}
                                     selectRow={this.selectRow}
-                                    readOnly={this.props.license.GuestAccountsPermissions !== 'true'}
+                                    readOnly={!this.haveGuestAccountsPermissions()}
                                 />
                             </AdminPanelTogglable>}
 
@@ -429,6 +430,7 @@ export default class PermissionSystemSchemeSettings extends React.Component {
                         />
                     </BlockableLink>
                     <a
+                        data-testid='resetPermissionsToDefault'
                         onClick={() => this.setState({showResetDefaultModal: true})}
                         className='cancel-button reset-defaults-btn'
                     >

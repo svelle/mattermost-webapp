@@ -6,13 +6,12 @@ import React from 'react';
 import {Client4} from 'mattermost-redux/client';
 
 import * as Utils from 'utils/utils.jsx';
-import ProfilePicture from 'components/profile_picture.jsx';
-import GuestBadge from 'components/widgets/badges/guest_badge.jsx';
-import BotBadge from 'components/widgets/badges/bot_badge.jsx';
+import ProfilePicture from 'components/profile_picture';
+import UserProfile from 'components/user_profile';
 
 import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx';
 
-export default class UserListRow extends React.Component {
+export default class UserListRow extends React.PureComponent {
     static propTypes = {
         user: PropTypes.object.isRequired,
         status: PropTypes.string,
@@ -91,23 +90,28 @@ export default class UserListRow extends React.Component {
                     src={Client4.getProfilePictureUrl(this.props.user.id, this.props.user.last_picture_update)}
                     status={status}
                     size='md'
+                    userId={this.props.user.id}
+                    hasMention={true}
+                    username={this.props.user.username}
                 />
                 <div
                     className='more-modal__details'
+                    data-testid='userListItemDetails'
                 >
                     <div
                         id={userCountID}
                         className='more-modal__name'
                     >
-                        {Utils.displayEntireNameForUser(this.props.user)}
-                        <BotBadge
-                            className='badge-popoverlist'
-                            show={Boolean(this.props.user.is_bot)}
+                        <UserProfile
+                            userId={this.props.user.id}
+                            hasMention={true}
+                            displayUsername={true}
                         />
-                        <GuestBadge
-                            className='badge-popoverlist'
-                            show={Utils.isGuest(this.props.user)}
-                        />
+                        &nbsp;
+                        {this.props.user.first_name || this.props.user.last_name || this.props.user.nickname ?
+                            '-' : null}
+                        &nbsp;
+                        {Utils.displayFullAndNicknameForUser(this.props.user)}
                     </div>
                     <div
                         id={userCountEmail}
@@ -118,6 +122,7 @@ export default class UserListRow extends React.Component {
                     {this.props.extraInfo}
                 </div>
                 <div
+                    data-testid='userListItemActions'
                     className='more-modal__actions'
                 >
                     {buttons}

@@ -2,18 +2,29 @@
 // See LICENSE.txt for license information.
 
 // ***************************************************************
-// - [#] indicates a test step (e.g. 1. Go to a page)
+// - [#] indicates a test step (e.g. # Go to a page)
 // - [*] indicates an assertion (e.g. * Check the title)
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
 
+// Stage: @prod
+// Group: @emoji
+
 describe('Custom emojis', () => {
     before(() => {
-        cy.apiLogin('user-1');
-        cy.visit('/');
+        cy.apiUpdateConfig({
+            ServiceSettings: {
+                EnableCustomEmoji: true,
+            },
+        });
+
+        // # Visit town-square
+        cy.apiInitSetup().then(({team}) => {
+            cy.visit(`/${team.name}/channels/town-square`);
+        });
     });
 
-    it('MM-9777 User cant add custom emoji with the same name as a system one', async () => {
+    it('MM-9777 User cant add custom emoji with the same name as a system one', () => {
         // #Open sidebar
         cy.get('#sidebarHeaderDropdownButton').click();
 

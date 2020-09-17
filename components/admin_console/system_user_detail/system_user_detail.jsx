@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -10,25 +11,36 @@ import {Overlay, Tooltip} from 'react-bootstrap';
 import {isEmail} from 'mattermost-redux/utils/helpers';
 
 import {adminResetMfa, adminResetEmail} from 'actions/admin_actions.jsx';
-import {Constants} from 'utils/constants.jsx';
+
+import {Constants} from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
+import {t} from 'utils/i18n';
 
 import BlockableLink from 'components/admin_console/blockable_link';
 import ResetPasswordModal from 'components/admin_console/reset_password_modal';
 import AdminButtonOutline from 'components/admin_console/admin_button_outline/admin_button_outline';
 import AdminUserCard from 'components/admin_console/admin_user_card/admin_user_card';
-import ConfirmModal from 'components/confirm_modal.jsx';
-import SaveButton from 'components/save_button.jsx';
-import FormError from 'components/form_error.jsx';
+import AdminPanel from 'components/widgets/admin_console/admin_panel';
+import ConfirmModal from 'components/confirm_modal';
+import SaveButton from 'components/save_button';
+import FormError from 'components/form_error';
+import TeamSelectorModal from 'components/team_selector_modal';
+
+import TeamList from 'components/admin_console/system_user_detail/team_list';
+import EmailIcon from 'components/widgets/icons/email_icon.jsx';
+import AtIcon from 'components/widgets/icons/at_icon.jsx';
+import SheidOutlineIcon from 'components/widgets/icons/shield_outline_icon.jsx';
 
 import './system_user_detail.scss';
 
-export default class SystemUserDetail extends React.Component {
+export default class SystemUserDetail extends React.PureComponent {
     static propTypes = {
         user: PropTypes.object.isRequired,
+        mfaEnabled: PropTypes.bool.isRequired,
         actions: PropTypes.shape({
             updateUserActive: PropTypes.func.isRequired,
             setNavigationBlocked: PropTypes.func.isRequired,
+            addUserToTeam: PropTypes.func.isRequired,
         }).isRequired,
     }
 
@@ -36,11 +48,14 @@ export default class SystemUserDetail extends React.Component {
         user: {
             email: null,
         },
+        mfaEnabled: false,
     }
 
     constructor(props) {
         super(props);
         this.state = {
+            teams: null,
+            teamIds: null,
             loading: false,
             searching: false,
             showPasswordModal: false,
@@ -53,7 +68,32 @@ export default class SystemUserDetail extends React.Component {
             user: {
                 email: this.props.user.email,
             },
+            addTeamOpen: false,
+            refreshTeams: true,
         };
+    }
+
+    setTeamsData = (teams) => {
+        const teamIds = teams.map((team) => team.team_id);
+        this.setState({teams});
+        this.setState({teamIds});
+        this.setState({refreshTeams: false});
+    }
+
+    openAddTeam = () => {
+        this.setState({addTeamOpen: true});
+    }
+
+    addTeams = (teams) => {
+        const promises = [];
+        for (const team of teams) {
+            promises.push(this.props.actions.addUserToTeam(team.id, this.props.user.id));
+        }
+        Promise.all(promises).finally(this.setState({refreshTeams: true}));
+    }
+
+    closeAddTeam = () => {
+        this.setState({addTeamOpen: false});
     }
 
     doPasswordReset = (user) => {
@@ -140,7 +180,7 @@ export default class SystemUserDetail extends React.Component {
                 (err) => {
                     const serverError = err.message ? err.message : err;
                     this.setState({serverError});
-                }
+                },
             );
 
             this.setState({
@@ -239,11 +279,35 @@ export default class SystemUserDetail extends React.Component {
                     onClick={this.handleResetMfa}
                     className='admin-btn-default'
                 >
-                    {'Remove MFA'}
+                    {Utils.localizeMessage('admin.user_item.resetMfa', 'Remove MFA')}
                 </AdminButtonOutline>
             );
         }
         return null;
+    }
+
+    getAuthenticationText() {
+        const {user, mfaEnabled} = this.props;
+        let authLine;
+
+        if (user.auth_service) {
+            let service;
+            if (user.auth_service === Constants.LDAP_SERVICE || user.auth_service === Constants.SAML_SERVICE) {
+                service = user.auth_service.toUpperCase();
+            } else {
+                service = Utils.toTitleCase(user.auth_service);
+            }
+            authLine = service;
+        } else {
+            authLine = Utils.localizeMessage('admin.userManagement.userDetail.email', 'Email');
+        }
+        if (mfaEnabled) {
+            if (user.mfa_active) {
+                authLine += ', ';
+                authLine += Utils.localizeMessage('admin.userManagement.userDetail.mfa', 'MFA');
+            }
+        }
+        return authLine;
     }
 
     render() {
@@ -310,18 +374,28 @@ export default class SystemUserDetail extends React.Component {
                             user={user}
                             body={
                                 <React.Fragment>
-                                    <span className='SystemUserDetail__field-label'>{user.position}</span>
+                                    <span className='SystemUserDetail__position'>{user.position}</span>
                                     <span className='SystemUserDetail__field-label'>{Utils.localizeMessage('admin.userManagement.userDetail.email', 'Email')}</span>
-                                    <input
-                                        className='SystemUserDetail__input form-control'
-                                        type='text'
-                                        value={this.state.user.email}
-                                        onChange={this.handleEmailChange}
-                                    />
+                                    <div>
+                                        <EmailIcon className='SystemUserDetail__field-icon'/>
+                                        <input
+                                            className='SystemUserDetail__input form-control'
+                                            type='text'
+                                            value={this.state.user.email}
+                                            onChange={this.handleEmailChange}
+                                        />
+                                    </div>
                                     <span className='SystemUserDetail__field-label'>{Utils.localizeMessage('admin.userManagement.userDetail.username', 'Username')}</span>
-                                    <p>{user.username}</p>
+                                    <div>
+                                        <AtIcon className='SystemUserDetail__field-icon'/>
+                                        <span className='SystemUserDetail__field-text'>{user.username}</span>
+                                    </div>
                                     <span className='SystemUserDetail__field-label'>{Utils.localizeMessage('admin.userManagement.userDetail.authenticationMethod', 'Authentication Method')}</span>
-                                    <p>{user.mfa_active ? 'MFA' : 'Email'}</p>
+                                    <div className='SystemUserDetail__field-text'>
+                                        <SheidOutlineIcon className='SystemUserDetail__field-icon'/>
+                                        <span className='SystemUserDetail__field-text'>{this.getAuthenticationText()}</span>
+                                    </div>
+
                                     <span className='SystemUserDetail__field-label'>{Utils.localizeMessage('admin.userManagement.userDetail.role', 'Role')}</span>
                                     <p>{currentRoles}</p>
                                 </React.Fragment>
@@ -332,13 +406,38 @@ export default class SystemUserDetail extends React.Component {
                                         onClick={this.doPasswordReset}
                                         className='admin-btn-default'
                                     >
-                                        {'Reset Password'}
+                                        {Utils.localizeMessage('admin.user_item.resetPwd', 'Reset Password')}
                                     </AdminButtonOutline>
                                     {this.renderActivateDeactivate()}
                                     {this.renderRemoveMFA()}
                                 </React.Fragment>
                             }
                         />
+                        <AdminPanel
+                            subtitleId={t('admin.userManagement.userDetail.teamsSubtitle')}
+                            subtitleDefault={'Teams to which this user belongs'}
+                            titleId={t('admin.userManagement.userDetail.teamsTitle')}
+                            titleDefault={'Team Membership'}
+                            button={(
+                                <div className='add-team-button'>
+                                    <button
+                                        className='btn btn-primary'
+                                        onClick={this.openAddTeam}
+                                    >
+                                        <FormattedMessage
+                                            id='admin.userManagement.userDetail.addTeam'
+                                            defaultMessage='Add Team'
+                                        />
+                                    </button>
+                                </div>
+                            )}
+                        >
+                            <TeamList
+                                userId={this.props.user.id}
+                                userDetailCallback={this.setTeamsData}
+                                refreshTeams={this.state.refreshTeams}
+                            />
+                        </AdminPanel>
                     </div>
                 </div>
                 <div className='admin-console-save'>
@@ -374,7 +473,15 @@ export default class SystemUserDetail extends React.Component {
                     onModalDismissed={this.doPasswordResetDismiss}
                 />
                 {deactivateMemberModal}
+                {this.state.addTeamOpen &&
+                    <TeamSelectorModal
+                        onModalDismissed={this.closeAddTeam}
+                        onTeamsSelected={this.addTeams}
+                        alreadySelected={this.state.teamIds}
+                    />
+                }
             </div>
         );
     }
 }
+/* eslint-enable react/no-string-refs */

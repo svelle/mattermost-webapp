@@ -4,11 +4,10 @@
 import React from 'react';
 import {Client4} from 'mattermost-redux/client';
 
-import {autocompleteUsers} from 'actions/user_actions.jsx';
 import * as Utils from 'utils/utils.jsx';
 
-import GuestBadge from 'components/widgets/badges/guest_badge.jsx';
-import BotBadge from 'components/widgets/badges/bot_badge.jsx';
+import GuestBadge from 'components/widgets/badges/guest_badge';
+import BotBadge from 'components/widgets/badges/bot_badge';
 import Avatar from 'components/widgets/users/avatar';
 
 import Provider from './provider.jsx';
@@ -38,6 +37,7 @@ class UserSuggestion extends Suggestion {
             <div
                 className={className}
                 onClick={this.handleClick}
+                onMouseMove={this.handleMouseMove}
                 {...Suggestion.baseProps}
             >
                 <Avatar
@@ -60,27 +60,28 @@ class UserSuggestion extends Suggestion {
 }
 
 export default class UserProvider extends Provider {
-    handlePretextChanged(pretext, resultsCallback) {
+    constructor(searchUsersFunc) {
+        super();
+        this.autocompleteUsers = searchUsersFunc;
+    }
+    async handlePretextChanged(pretext, resultsCallback) {
         const normalizedPretext = pretext.toLowerCase();
         this.startNewRequest(normalizedPretext);
 
-        autocompleteUsers(
-            normalizedPretext,
-            (data) => {
-                if (this.shouldCancelDispatch(normalizedPretext)) {
-                    return;
-                }
+        const data = await this.autocompleteUsers(normalizedPretext);
 
-                const users = Object.assign([], data.users);
+        if (this.shouldCancelDispatch(normalizedPretext)) {
+            return false;
+        }
 
-                resultsCallback({
-                    matchedPretext: normalizedPretext,
-                    terms: users.map((user) => user.username),
-                    items: users,
-                    component: UserSuggestion,
-                });
-            }
-        );
+        const users = Object.assign([], data.users);
+
+        resultsCallback({
+            matchedPretext: normalizedPretext,
+            terms: users.map((user) => user.username),
+            items: users,
+            component: UserSuggestion,
+        });
 
         return true;
     }

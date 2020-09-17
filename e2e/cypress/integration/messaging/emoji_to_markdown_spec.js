@@ -2,10 +2,13 @@
 // See LICENSE.txt for license information.
 
 // ***************************************************************
-// - [#] indicates a test step (e.g. 1. Go to a page)
+// - [#] indicates a test step (e.g. # Go to a page)
 // - [*] indicates an assertion (e.g. * Check the title)
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
+
+// Stage: @prod
+// Group: @messaging
 
 function createMessages(message, aliases) {
     cy.postMessage(message);
@@ -14,7 +17,7 @@ function createMessages(message, aliases) {
         cy.clickPostCommentIcon(postId);
     });
 
-    cy.postMessageReplyInRHS(message + '{enter}');
+    cy.postMessageReplyInRHS(message);
     cy.getLastPostId().then((postId) => {
         cy.get(`#postMessageText_${postId}`).as(aliases[1]);
     });
@@ -42,8 +45,10 @@ function createAndVerifyMessage(message, isCode) {
 
 describe('Messaging', () => {
     before(() => {
-        cy.apiLogin('user-1');
-        cy.visit('/');
+        // # Login as test user and visit town-square
+        cy.apiInitSetup({loginAfter: true}).then(({team}) => {
+            cy.visit(`/${team.name}/channels/town-square`);
+        });
     });
 
     it('M17446 - Emojis preceded by 4 or more spaces are treated as Markdown', () => {

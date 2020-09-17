@@ -11,7 +11,7 @@ describe('components/invitation_modal/InvitationModalConfirmStepRow', () => {
         const wrapper = shallow(
             <InvitationModalConfirmStepRow
                 invitation={{email: 'test-email@test.com', reason: 'Test reason email'}}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -29,7 +29,29 @@ describe('components/invitation_modal/InvitationModalConfirmStepRow', () => {
                     },
                     reason: 'Test reason user',
                 }}
-            />
+            />,
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('should match the snapshot for guest addition to channel', () => {
+        const wrapper = shallow(
+            <InvitationModalConfirmStepRow
+                invitation={{
+                    user: {
+                        id: 'test-id',
+                        username: 'test',
+                        nickname: 'test-nickname',
+                        first_name: 'first-name',
+                        last_name: 'last-name',
+                    },
+                    reason: {
+                        id: 'some-id',
+                        message: 'some message',
+                        values: {count: 1},
+                    },
+                }}
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -41,7 +63,7 @@ describe('components/invitation_modal/InvitationModalConfirmStepRow', () => {
                     text: 'test',
                     reason: 'Test reason for text',
                 }}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });

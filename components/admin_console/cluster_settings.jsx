@@ -10,27 +10,20 @@ import * as Utils from 'utils/utils.jsx';
 import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx';
 import WarningIcon from 'components/widgets/icons/fa_warning_icon';
 
-import AdminSettings from './admin_settings.jsx';
-import BooleanSetting from './boolean_setting.jsx';
+import AdminSettings from './admin_settings';
+import BooleanSetting from './boolean_setting';
 import ClusterTableContainer from './cluster_table_container.jsx';
 import SettingsGroup from './settings_group.jsx';
-import TextSetting from './text_setting.jsx';
+import TextSetting from './text_setting';
 
 export default class ClusterSettings extends AdminSettings {
-    constructor(props) {
-        super(props);
-
-        this.getConfigFromState = this.getConfigFromState.bind(this);
-        this.renderSettings = this.renderSettings.bind(this);
-        this.overrideHandleChange = this.overrideHandleChange.bind(this);
-    }
-
-    getConfigFromState(config) {
+    getConfigFromState = (config) => {
         config.ClusterSettings.Enable = this.state.Enable;
         config.ClusterSettings.ClusterName = this.state.ClusterName;
         config.ClusterSettings.OverrideHostname = this.state.OverrideHostname;
         config.ClusterSettings.UseIpAddress = this.state.UseIpAddress;
         config.ClusterSettings.UseExperimentalGossip = this.state.UseExperimentalGossip;
+        config.ClusterSettings.EnableExperimentalGossipEncryption = this.state.EnableExperimentalGossipEncryption;
         config.ClusterSettings.GossipPort = this.parseIntNonZero(this.state.GossipPort, 8074);
         config.ClusterSettings.StreamingPort = this.parseIntNonZero(this.state.StreamingPort, 8075);
         return config;
@@ -45,6 +38,7 @@ export default class ClusterSettings extends AdminSettings {
             OverrideHostname: settings.OverrideHostname,
             UseIpAddress: settings.UseIpAddress,
             UseExperimentalGossip: settings.UseExperimentalGossip,
+            EnableExperimentalGossipEncryption: settings.EnableExperimentalGossipEncryption,
             GossipPort: settings.GossipPort,
             StreamingPort: settings.StreamingPort,
             showWarning: false,
@@ -60,7 +54,7 @@ export default class ClusterSettings extends AdminSettings {
         );
     }
 
-    overrideHandleChange(id, value) {
+    overrideHandleChange = (id, value) => {
         this.setState({
             showWarning: true,
         });
@@ -68,7 +62,7 @@ export default class ClusterSettings extends AdminSettings {
         this.handleChange(id, value);
     }
 
-    renderSettings() {
+    renderSettings = () => {
         const licenseEnabled = this.props.license.IsLicensed === 'true' && this.props.license.Cluster === 'true';
         if (!licenseEnabled) {
             return null;
@@ -218,6 +212,24 @@ export default class ClusterSettings extends AdminSettings {
                     value={this.state.UseExperimentalGossip}
                     onChange={this.overrideHandleChange}
                     setByEnv={this.isSetByEnv('ClusterSettings.UseExperimentalGossip')}
+                />
+                <BooleanSetting
+                    id='EnableExperimentalGossipEncryption'
+                    label={
+                        <FormattedMessage
+                            id='admin.cluster.EnableExperimentalGossipEncryption'
+                            defaultMessage='Enable Experimental Gossip encryption:'
+                        />
+                    }
+                    helpText={
+                        <FormattedHTMLMessage
+                            id='admin.cluster.EnableExperimentalGossipEncryptionDesc'
+                            defaultMessage='When true, all communication through the gossip protocol will be encrypted.'
+                        />
+                    }
+                    value={this.state.EnableExperimentalGossipEncryption}
+                    onChange={this.overrideHandleChange}
+                    setByEnv={this.isSetByEnv('ClusterSettings.EnableExperimentalGossipEncryption')}
                 />
                 <TextSetting
                     id='GossipPort'

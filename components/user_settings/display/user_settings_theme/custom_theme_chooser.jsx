@@ -1,19 +1,26 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {OverlayTrigger, Popover} from 'react-bootstrap';
-import {defineMessages, FormattedMessage, intlShape} from 'react-intl';
+import {defineMessages, FormattedMessage} from 'react-intl';
+import {setThemeDefaults} from 'mattermost-redux/utils/theme_utils';
 
 import {t} from 'utils/i18n';
 import 'bootstrap-colorpicker';
 
-import Constants from 'utils/constants.jsx';
-import * as UserAgent from 'utils/user_agent.jsx';
+import Constants from 'utils/constants';
+import * as UserAgent from 'utils/user_agent';
+
+import LocalizedIcon from 'components/localized_icon';
+import OverlayTrigger from 'components/overlay_trigger';
+import Popover from 'components/widgets/popover';
 
 import ColorChooser from './color_chooser.jsx';
+
+const COPY_SUCCESS_INTERVAL = 3000;
 
 const messages = defineMessages({
     sidebarBg: {
@@ -110,14 +117,10 @@ const messages = defineMessages({
     },
 });
 
-export default class CustomThemeChooser extends React.Component {
+export default class CustomThemeChooser extends React.PureComponent {
     static propTypes = {
         theme: PropTypes.object.isRequired,
         updateTheme: PropTypes.func.isRequired,
-    };
-
-    static contextTypes = {
-        intl: intlShape.isRequired,
     };
 
     constructor(props) {
@@ -189,6 +192,8 @@ export default class CustomThemeChooser extends React.Component {
             return;
         }
 
+        setThemeDefaults(theme);
+
         this.setState({
             copyTheme: JSON.stringify(theme),
         });
@@ -247,8 +252,22 @@ export default class CustomThemeChooser extends React.Component {
         this.props.updateTheme(theme);
     }
 
+    copyTheme = () => {
+        this.selectTheme();
+        document.execCommand('copy');
+        this.showCopySuccess();
+    }
+
+    showCopySuccess = () => {
+        const copySuccess = $('.copy-theme-success');
+        copySuccess.show();
+
+        setTimeout(() => {
+            copySuccess.hide();
+        }, COPY_SUCCESS_INTERVAL);
+    }
+
     render() {
-        const {formatMessage} = this.context.intl;
         const theme = this.props.theme;
 
         const sidebarElements = [];
@@ -269,13 +288,13 @@ export default class CustomThemeChooser extends React.Component {
                             value={codeTheme.id}
                         >
                             {codeTheme.uiName}
-                        </option>
+                        </option>,
                     );
                 });
 
                 var popoverContent = (
                     <Popover
-                        bsStyle='info'
+                        popoverStyle='info'
                         id='code-popover'
                         className='code-popover'
                     >
@@ -292,7 +311,9 @@ export default class CustomThemeChooser extends React.Component {
                         className='col-sm-6 form-group'
                         key={'custom-theme-key' + index}
                     >
-                        <label className='custom-label'>{formatMessage(messages[element.id])}</label>
+                        <label className='custom-label'>
+                            <FormattedMessage {...messages[element.id]}/>
+                        </label>
                         <div
                             className='input-group theme-group group--code dropdown'
                             id={element.id}
@@ -318,7 +339,7 @@ export default class CustomThemeChooser extends React.Component {
                                 </span>
                             </OverlayTrigger>
                         </div>
-                    </div>
+                    </div>,
                 );
             } else if (element.group === 'centerChannelElements') {
                 centerChannelElements.push(
@@ -328,11 +349,11 @@ export default class CustomThemeChooser extends React.Component {
                     >
                         <ColorChooser
                             id={element.id}
-                            label={formatMessage(messages[element.id])}
+                            label={<FormattedMessage {...messages[element.id]}/>}
                             color={theme[element.id]}
                             onChange={this.handleColorChange}
                         />
-                    </div>
+                    </div>,
                 );
             } else if (element.group === 'sidebarElements') {
                 // Need to support old typo mentionBj element for mentionBg
@@ -348,11 +369,11 @@ export default class CustomThemeChooser extends React.Component {
                     >
                         <ColorChooser
                             id={element.id}
-                            label={formatMessage(messages[element.id])}
+                            label={<FormattedMessage {...messages[element.id]}/>}
                             color={color}
                             onChange={this.handleColorChange}
                         />
-                    </div>
+                    </div>,
                 );
             } else {
                 linkAndButtonElements.push(
@@ -362,11 +383,11 @@ export default class CustomThemeChooser extends React.Component {
                     >
                         <ColorChooser
                             id={element.id}
-                            label={formatMessage(messages[element.id])}
+                            label={<FormattedMessage {...messages[element.id]}/>}
                             color={theme[element.id]}
                             onChange={this.handleColorChange}
                         />
-                    </div>
+                    </div>,
                 );
             }
         });
@@ -376,7 +397,7 @@ export default class CustomThemeChooser extends React.Component {
                 <label className='custom-label'>
                     <FormattedMessage
                         id='user.settings.custom_theme.copyPaste'
-                        defaultMessage='Copy and paste to share theme colors:'
+                        defaultMessage='Copy to share or paste theme colors here:'
                     />
                 </label>
                 <textarea
@@ -384,15 +405,37 @@ export default class CustomThemeChooser extends React.Component {
                     className='form-control'
                     id='pasteBox'
                     value={this.state.copyTheme}
+                    onCopy={this.showCopySuccess}
                     onPaste={this.pasteBoxChange}
                     onChange={this.onChangeHandle}
                     onClick={this.selectTheme}
                 />
+                <div className='mt-3'>
+                    <button
+                        className='btn btn-link copy-theme-button'
+                        onClick={this.copyTheme}
+                    >
+                        <FormattedMessage
+                            id='user.settings.custom_theme.copyThemeColors'
+                            defaultMessage='Copy Theme Colors'
+                        />
+                    </button>
+                    <span
+                        className='alert alert-success copy-theme-success'
+                        role='alert'
+                        style={{display: 'none'}}
+                    >
+                        <FormattedMessage
+                            id='user.settings.custom_theme.copied'
+                            defaultMessage='✔ Copied'
+                        />
+                    </span>
+                </div>
             </div>
         );
 
         return (
-            <div className='appearance-section padding-top'>
+            <div className='appearance-section pt-2'>
                 <div className='theme-elements row'>
                     <div
                         ref='sidebarStylesHeader'
@@ -405,13 +448,13 @@ export default class CustomThemeChooser extends React.Component {
                             defaultMessage='Sidebar Styles'
                         />
                         <div className='header__icon'>
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-plus'
-                                title={formatMessage({id: 'generic_icons.expand', defaultMessage: 'Expand Icon'})}
+                                title={{id: t('generic_icons.expand'), defaultMessage: 'Expand Icon'}}
                             />
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-minus'
-                                title={formatMessage({id: 'generic_icons.collapse', defaultMessage: 'Collapse Icon'})}
+                                title={{id: t('generic_icons.collapse'), defaultMessage: 'Collapse Icon'}}
                             />
                         </div>
                     </div>
@@ -422,12 +465,10 @@ export default class CustomThemeChooser extends React.Component {
                         {sidebarElements}
                     </div>
                 </div>
-                <div
-                    id='centerChannelStyles'
-                    className='theme-elements row'
-                >
+                <div className='theme-elements row'>
                     <div
                         ref='centerChannelStylesHeader'
+                        id='centerChannelStyles'
                         className='theme-elements__header'
                         onClick={this.toggleCenterChannelStyles}
                     >
@@ -436,13 +477,13 @@ export default class CustomThemeChooser extends React.Component {
                             defaultMessage='Center Channel Styles'
                         />
                         <div className='header__icon'>
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-plus'
-                                title={formatMessage({id: 'generic_icons.expand', defaultMessage: 'Expand Icon'})}
+                                title={{id: t('generic_icons.expand'), defaultMessage: 'Expand Icon'}}
                             />
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-minus'
-                                title={formatMessage({id: 'generic_icons.collapse', defaultMessage: 'Collapse Icon'})}
+                                title={{id: t('generic_icons.collapse'), defaultMessage: 'Collapse Icon'}}
                             />
                         </div>
                     </div>
@@ -466,13 +507,13 @@ export default class CustomThemeChooser extends React.Component {
                             defaultMessage='Link and Button Styles'
                         />
                         <div className='header__icon'>
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-plus'
-                                title={formatMessage({id: 'generic_icons.expand', defaultMessage: 'Expand Icon'})}
+                                title={{id: t('generic_icons.expand'), defaultMessage: 'Expand Icon'}}
                             />
-                            <i
+                            <LocalizedIcon
                                 className='fa fa-minus'
-                                title={formatMessage({id: 'generic_icons.collapse', defaultMessage: 'Collapse Icon'})}
+                                title={{id: t('generic_icons.collapse'), defaultMessage: 'Collapse Icon'}}
                             />
                         </div>
                     </div>
@@ -483,10 +524,11 @@ export default class CustomThemeChooser extends React.Component {
                         {linkAndButtonElements}
                     </div>
                 </div>
-                <div className='row margin-top x2'>
+                <div className='row mt-3'>
                     {pasteBox}
                 </div>
             </div>
         );
     }
 }
+/* eslint-enable react/no-string-refs */

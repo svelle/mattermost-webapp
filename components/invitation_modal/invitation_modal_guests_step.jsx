@@ -14,22 +14,23 @@ import CloseCircleIcon from 'components/widgets/icons/close_circle_icon';
 import ChannelsInput from 'components/widgets/inputs/channels_input.jsx';
 import UsersEmailsInput from 'components/widgets/inputs/users_emails_input.jsx';
 
-import BackIcon from 'components/widgets/icons/back_icon';
-
 import './invitation_modal_guests_step.scss';
 
 import {t} from 'utils/i18n.jsx';
+import {localizeMessage} from 'utils/utils.jsx';
 
-export default class InvitationModalGuestsStep extends React.Component {
+export default class InvitationModalGuestsStep extends React.PureComponent {
     static propTypes = {
-        goBack: PropTypes.func,
+        teamName: PropTypes.string.isRequired,
         myInvitableChannels: PropTypes.array.isRequired,
         currentTeamId: PropTypes.string.isRequired,
         searchProfiles: PropTypes.func.isRequired,
+        searchChannels: PropTypes.func.isRequired,
         defaultChannels: PropTypes.array,
         defaultMessage: PropTypes.string,
         onEdit: PropTypes.func.isRequired,
         onSubmit: PropTypes.func.isRequired,
+        emailInvitationsEnabled: PropTypes.bool.isRequired,
     }
 
     constructor(props) {
@@ -95,10 +96,14 @@ export default class InvitationModalGuestsStep extends React.Component {
         }
     }
 
+    debouncedSearchChannels = debounce((term) => this.props.searchChannels(this.props.currentTeamId, term), 150);
+
     channelsLoader = async (value) => {
         if (!value) {
             return this.props.myInvitableChannels;
         }
+
+        this.debouncedSearchChannels(value);
         return this.props.myInvitableChannels.filter((channel) => {
             return channel.display_name.toLowerCase().startsWith(value.toLowerCase()) || channel.name.toLowerCase().startsWith(value.toLowerCase());
         });
@@ -131,58 +136,73 @@ export default class InvitationModalGuestsStep extends React.Component {
     }
 
     render() {
+        let inputPlaceholder = localizeMessage('invitation_modal.guests.search-and-add.placeholder', 'Add guests or email addresses');
+        let noMatchMessageId = t('invitation_modal.guests.users_emails_input.no_user_found_matching');
+        let noMatchMessageDefault = 'No one found matching **{text}**, type email to invite';
+
+        if (!this.props.emailInvitationsEnabled) {
+            inputPlaceholder = localizeMessage('invitation_modal.guests.search-and-add.placeholder-email-disabled', 'Add guests');
+            noMatchMessageId = t('invitation_modal.guests.users_emails_input.no_user_found_matching-email-disabled');
+            noMatchMessageDefault = 'No one found matching **{text}**';
+        }
         return (
             <div className='InvitationModalGuestsStep'>
-                {this.props.goBack &&
-                    <BackIcon
-                        className='back'
-                        onClick={this.props.goBack}
-                    />}
                 <div className='modal-icon'>
                     <InviteIcon/>
                 </div>
-                <h1>
+                <h1 id='invitation_modal_title'>
                     <FormattedMarkdownMessage
                         id='invitation_modal.guests.title'
-                        defaultMessage='Invite **Guests**'
+                        defaultMessage='Invite **Guests** to {teamName}'
+                        values={{teamName: this.props.teamName}}
                     />
                 </h1>
-                <div className='add-people'>
+                <div
+                    className='add-people'
+                    data-testid='addPeople'
+                >
                     <h2>
                         <FormattedMessage
                             id='invitation_modal.guests.add_people.title'
                             defaultMessage='Invite People'
                         />
                     </h2>
-                    <div>
-                        <FormattedMessage
-                            id='invitation_modal.guests.search-and-add.placeholder'
-                            defaultMessage='Add guests or email addresses'
-                        >
-                            {(placeholder) => (
-                                <UsersEmailsInput
-                                    usersLoader={this.usersLoader}
-                                    placeholder={placeholder}
-                                    onChange={this.onUsersEmailsChange}
-                                    value={this.state.usersAndEmails}
-                                    onInputChange={this.onUsersInputChange}
-                                    inputValue={this.state.usersInputValue}
-                                    validAddressMessageId={t('invitation_modal.guests.users_emails_input.valid_email')}
-                                    validAddressMessageDefault='Invite **{email}** as a guest'
-                                    noMatchMessageId={t('invitation_modal.guests.users_emails_input.no_user_found_matching')}
-                                    noMatchMessageDefault='No one found matching **{text}**, type email to invite'
-                                />
-                            )}
-                        </FormattedMessage>
-                    </div>
-                    <div className='help-text'>
-                        <FormattedMessage
-                            id='invitation_modal.guests.add_people.description'
-                            defaultMessage='Search and add guests or email invite new users.'
+                    <div data-testid='emailPlaceholder'>
+                        <UsersEmailsInput
+                            usersLoader={this.usersLoader}
+                            placeholder={inputPlaceholder}
+                            ariaLabel={localizeMessage('invitation_modal.guests.add_people.title', 'Invite People')}
+                            onChange={this.onUsersEmailsChange}
+                            value={this.state.usersAndEmails}
+                            onInputChange={this.onUsersInputChange}
+                            inputValue={this.state.usersInputValue}
+                            validAddressMessageId={t('invitation_modal.guests.users_emails_input.valid_email')}
+                            validAddressMessageDefault='Invite **{email}** as a guest'
+                            noMatchMessageId={noMatchMessageId}
+                            noMatchMessageDefault={noMatchMessageDefault}
+                            emailInvitationsEnabled={this.props.emailInvitationsEnabled}
                         />
                     </div>
+                    <div className='help-text'>
+
+                        {this.props.emailInvitationsEnabled &&
+                        <FormattedMessage
+                            id='invitation_modal.guests.add_people.description'
+                            defaultMessage='Add existing guests or send email invites to new guests.'
+                        />
+                        }
+                        {!this.props.emailInvitationsEnabled &&
+                        <FormattedMessage
+                            id='invitation_modal.guests.add_people.description-email-disabled'
+                            defaultMessage='Add existing guests.'
+                        />
+                        }
+                    </div>
                 </div>
-                <div className='add-channels'>
+                <div
+                    className='add-channels'
+                    data-testid='channelPlaceholder'
+                >
                     <h2>
                         <FormattedMessage
                             id='invitation_modal.guests.add_channels.title'
@@ -197,6 +217,7 @@ export default class InvitationModalGuestsStep extends React.Component {
                             {(placeholder) => (
                                 <ChannelsInput
                                     placeholder={placeholder}
+                                    ariaLabel={localizeMessage('invitation_modal.guests.add_channels.title', 'Search and Add Channels')}
                                     channelsLoader={this.channelsLoader}
                                     onChange={this.onChannelsChange}
                                     onInputChange={this.onChannelsInputChange}
@@ -213,9 +234,15 @@ export default class InvitationModalGuestsStep extends React.Component {
                         />
                     </div>
                 </div>
-                <div className='custom-message'>
+                <div
+                    className='custom-message'
+                    data-testid='customMessage'
+                >
                     {!this.state.customMessageOpen &&
-                        <a onClick={this.openCustomMessage}>
+                        <a
+                            onClick={this.openCustomMessage}
+                            href='#'
+                        >
                             <FormattedMessage
                                 id='invitation_modal.guests.custom-message.link'
                                 defaultMessage='Set a custom message'
@@ -250,6 +277,7 @@ export default class InvitationModalGuestsStep extends React.Component {
                         className={'btn ' + (this.state.channels.length === 0 || this.state.usersAndEmails.length === 0 ? 'btn-inactive' : 'btn-primary')}
                         disabled={this.state.channels.length === 0 || this.state.usersAndEmails.length === 0}
                         onClick={this.sendInvites}
+                        id='inviteGuestButton'
                     >
                         <FormattedMessage
                             id='invitation_modal.guests.invite_button'

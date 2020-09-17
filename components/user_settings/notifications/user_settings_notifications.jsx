@@ -1,14 +1,15 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
-import Constants, {NotificationLevels} from 'utils/constants.jsx';
+import Constants, {NotificationLevels} from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 import SettingItemMax from 'components/setting_item_max.jsx';
-import SettingItemMin from 'components/setting_item_min.jsx';
+import SettingItemMin from 'components/setting_item_min';
 
 import DesktopNotificationSettings from './desktop_notification_settings.jsx';
 import EmailNotificationSetting from './email_notification_setting';
@@ -26,7 +27,7 @@ function getNotificationsStateFromProps(props) {
     let autoResponderActive = false;
     let autoResponderMessage = Utils.localizeMessage(
         'user.settings.notifications.autoResponderDefault',
-        'Hello, I am out of office and unable to respond to messages.'
+        'Hello, I am out of office and unable to respond to messages.',
     );
 
     if (user.notify_props) {
@@ -107,23 +108,13 @@ function getNotificationsStateFromProps(props) {
     };
 }
 
-const prevSections = {
-    desktop: 'dummySectionName', // dummy value that should never match any section name
-    email: 'desktop',
-    push: 'email',
-    keys: 'push',
-    comments: 'keys',
-};
-
-export default class NotificationsTab extends React.Component {
+export default class NotificationsTab extends React.PureComponent {
     static propTypes = {
         user: PropTypes.object,
         updateSection: PropTypes.func,
         activeSection: PropTypes.string,
-        prevActiveSection: PropTypes.string,
         closeModal: PropTypes.func.isRequired,
         collapseModal: PropTypes.func.isRequired,
-        siteName: PropTypes.string,
         sendPushNotifications: PropTypes.bool,
         enableAutoResponder: PropTypes.bool,
         actions: PropTypes.shape({
@@ -134,7 +125,6 @@ export default class NotificationsTab extends React.Component {
     static defaultProps = {
         user: null,
         activeSection: '',
-        prevActiveSection: '',
         activeTab: '',
     }
 
@@ -158,7 +148,7 @@ export default class NotificationsTab extends React.Component {
         if (!data.auto_responder_message || data.auto_responder_message === '') {
             data.auto_responder_message = Utils.localizeMessage(
                 'user.settings.notifications.autoResponderDefault',
-                'Hello, I am out of office and unable to respond to messages.'
+                'Hello, I am out of office and unable to respond to messages.',
             );
         }
 
@@ -181,7 +171,7 @@ export default class NotificationsTab extends React.Component {
         this.props.actions.updateMe({notify_props: data}).
             then(({data: result, error: err}) => {
                 if (result) {
-                    this.updateSection('');
+                    this.handleUpdateSection('');
                     this.setState(getNotificationsStateFromProps(this.props));
                 } else if (err) {
                     this.setState({serverError: err.message, isSaving: false});
@@ -201,19 +191,15 @@ export default class NotificationsTab extends React.Component {
             this.props.updateSection(section);
         } else {
             this.props.updateSection('');
-            this.handleCancel();
         }
+        this.setState({isSaving: false});
+        this.handleCancel();
     };
 
     setStateValue = (key, value) => {
         const data = {};
         data[key] = value;
         this.setState(data);
-    }
-
-    updateSection = (section) => {
-        this.setState({isSaving: false});
-        this.props.updateSection(section);
     }
 
     handleNotifyCommentsRadio(notifyCommentsLevel) {
@@ -409,7 +395,7 @@ export default class NotificationsTab extends React.Component {
                                     />
                                 </label>
                             </div>
-                            <div className='margin-top x3'>
+                            <div className='mt-5'>
                                 <FormattedMessage
                                     id='user.settings.push_notification.info'
                                     defaultMessage='Notification alerts are pushed to your mobile device when there is activity in Mattermost.'
@@ -418,7 +404,7 @@ export default class NotificationsTab extends React.Component {
                         </fieldset>
                         <hr/>
                         {pushStatusSettings}
-                    </div>
+                    </div>,
                 );
 
                 submit = this.handleSubmit;
@@ -426,19 +412,19 @@ export default class NotificationsTab extends React.Component {
                 inputs.push(
                     <div
                         key='oauthEmailInfo'
-                        className='padding-top'
+                        className='pt-2'
                     >
                         <FormattedMessage
                             id='user.settings.push_notification.disabled_long'
                             defaultMessage='Push notifications have not been enabled by your System Administrator.'
                         />
-                    </div>
+                    </div>,
                 );
             }
 
             return (
                 <SettingItemMax
-                    title={Utils.localizeMessage('user.settings.notifications.push', 'Mobile push notifications')}
+                    title={Utils.localizeMessage('user.settings.notifications.push', 'Mobile Push Notifications')}
                     extraInfo={extraInfo}
                     inputs={inputs}
                     submit={submit}
@@ -513,9 +499,8 @@ export default class NotificationsTab extends React.Component {
 
         return (
             <SettingItemMin
-                title={Utils.localizeMessage('user.settings.notifications.push', 'Mobile push notifications')}
+                title={Utils.localizeMessage('user.settings.notifications.push', 'Mobile Push Notifications')}
                 describe={describe}
-                focused={this.props.prevActiveSection === prevSections.push}
                 section={'push'}
                 updateSection={this.handleUpdateSection}
             />
@@ -553,7 +538,7 @@ export default class NotificationsTab extends React.Component {
                                 />
                             </label>
                         </div>
-                    </div>
+                    </div>,
                 );
             }
 
@@ -579,7 +564,7 @@ export default class NotificationsTab extends React.Component {
                             />
                         </label>
                     </div>
-                </div>
+                </div>,
             );
 
             const handleUpdateChannelKey = (e) => {
@@ -601,7 +586,7 @@ export default class NotificationsTab extends React.Component {
                             />
                         </label>
                     </div>
-                </div>
+                </div>,
             );
 
             inputs.push(
@@ -632,7 +617,7 @@ export default class NotificationsTab extends React.Component {
                         onFocus={Utils.moveCursorToEnd}
                         aria-labelledby='notificationTriggerCustom'
                     />
-                </div>
+                </div>,
             );
 
             const extraInfo = (
@@ -649,7 +634,7 @@ export default class NotificationsTab extends React.Component {
 
             keysSection = (
                 <SettingItemMax
-                    title={Utils.localizeMessage('user.settings.notifications.wordsTrigger', 'Words that trigger mentions')}
+                    title={Utils.localizeMessage('user.settings.notifications.wordsTrigger', 'Words That Trigger Mentions')}
                     inputs={inputs}
                     submit={this.handleSubmit}
                     saving={this.state.isSaving}
@@ -696,9 +681,8 @@ export default class NotificationsTab extends React.Component {
 
             keysSection = (
                 <SettingItemMin
-                    title={Utils.localizeMessage('user.settings.notifications.wordsTrigger', 'Words that trigger mentions')}
+                    title={Utils.localizeMessage('user.settings.notifications.wordsTrigger', 'Words That Trigger Mentions')}
                     describe={describe}
-                    focused={this.props.prevActiveSection === prevSections.keys}
                     section={'keys'}
                     updateSection={this.handleUpdateSection}
                 />
@@ -770,7 +754,7 @@ export default class NotificationsTab extends React.Component {
                             />
                         </label>
                     </div>
-                </fieldset>
+                </fieldset>,
             );
 
             const extraInfo = (
@@ -822,7 +806,6 @@ export default class NotificationsTab extends React.Component {
                 <SettingItemMin
                     title={Utils.localizeMessage('user.settings.notifications.comments', 'Reply notifications')}
                     describe={describe}
-                    focused={this.props.prevActiveSection === prevSections.comments}
                     section={'comments'}
                     updateSection={this.handleUpdateSection}
                 />
@@ -837,7 +820,7 @@ export default class NotificationsTab extends React.Component {
                         <ManageAutoResponder
                             autoResponderActive={this.state.autoResponderActive}
                             autoResponderMessage={this.state.autoResponderMessage}
-                            updateSection={this.updateSection}
+                            updateSection={this.handleUpdateSection}
                             setParentState={this.setStateValue}
                             submit={this.handleSubmit}
                             error={this.state.serverError}
@@ -870,7 +853,7 @@ export default class NotificationsTab extends React.Component {
                         width='medium'
                         describe={describe}
                         section={'auto-responder'}
-                        updateSection={this.updateSection}
+                        updateSection={this.handleUpdateSection}
                     />
                 );
             }
@@ -938,20 +921,17 @@ export default class NotificationsTab extends React.Component {
                         cancel={this.handleCancel}
                         error={this.state.serverError}
                         active={this.props.activeSection === 'desktop'}
-                        focused={this.props.prevActiveSection === prevSections.desktop}
                     />
                     <div className='divider-light'/>
                     <EmailNotificationSetting
                         activeSection={this.props.activeSection}
-                        updateSection={this.props.updateSection}
+                        updateSection={this.handleUpdateSection}
                         enableEmail={this.state.enableEmail === 'true'}
                         onSubmit={this.handleSubmit}
                         onCancel={this.handleCancel}
                         onChange={this.handleEmailRadio}
                         saving={this.state.isSaving}
                         serverError={this.state.serverError}
-                        focused={this.props.prevActiveSection === prevSections.email}
-                        siteName={this.props.siteName}
                     />
                     <div className='divider-light'/>
                     {pushNotificationSection}
@@ -968,3 +948,4 @@ export default class NotificationsTab extends React.Component {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

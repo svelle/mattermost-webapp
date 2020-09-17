@@ -25,7 +25,6 @@ const DEV = targetIsRun || targetIsStats || targetIsDevServer;
 
 const STANDARD_EXCLUDE = [
     path.join(__dirname, 'node_modules'),
-    path.join(__dirname, 'non_npm_dependencies'),
 ];
 
 // react-hot-loader requires eval
@@ -144,7 +143,7 @@ var config = {
     module: {
         rules: [
             {
-                test: /\.(js|jsx)?$/,
+                test: /\.(js|jsx|ts|tsx)?$/,
                 exclude: STANDARD_EXCLUDE,
                 use: {
                     loader: 'babel-loader',
@@ -178,7 +177,9 @@ var config = {
                     {
                         loader: 'sass-loader',
                         options: {
-                            includePaths: ['node_modules/compass-mixins/lib', 'sass'],
+                            sassOptions: {
+                                includePaths: ['node_modules/compass-mixins/lib', 'sass'],
+                            },
                         },
                     },
                 ],
@@ -213,7 +214,15 @@ var config = {
                     {
                         loader: 'html-loader',
                         options: {
-                            attrs: 'link:href',
+                            attributes: {
+                                list: [
+                                    {
+                                        tag: 'link',
+                                        attribute: 'href',
+                                        type: 'src',
+                                    },
+                                ],
+                            },
                         },
                     },
                 ],
@@ -223,14 +232,13 @@ var config = {
     resolve: {
         modules: [
             'node_modules',
-            'non_npm_dependencies',
             path.resolve(__dirname),
         ],
         alias: {
             jquery: 'jquery/src/jquery',
             superagent: 'node_modules/superagent/lib/client',
         },
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
     performance: {
         hints: 'warning',
@@ -256,20 +264,23 @@ var config = {
             meta: {
                 csp: {
                     'http-equiv': 'Content-Security-Policy',
-                    content: 'script-src \'self\' cdn.segment.com/analytics.js/' + CSP_UNSAFE_EVAL_IF_DEV,
+                    content: 'script-src \'self\' cdn.rudderlabs.com/' + CSP_UNSAFE_EVAL_IF_DEV,
                 },
             },
         }),
-        new CopyWebpackPlugin([
-            {from: 'images/emoji', to: 'emoji'},
-            {from: 'images/img_trans.gif', to: 'images'},
-            {from: 'images/logo-email.png', to: 'images'},
-            {from: 'images/circles.png', to: 'images'},
-            {from: 'images/favicon', to: 'images/favicon'},
-            {from: 'images/appIcons.png', to: 'images'},
-            {from: 'images/warning.png', to: 'images'},
-            {from: 'images/browser-icons', to: 'images/browser-icons'},
-        ]),
+        new CopyWebpackPlugin({
+            patterns: [
+                {from: 'images/emoji', to: 'emoji'},
+                {from: 'images/img_trans.gif', to: 'images'},
+                {from: 'images/logo-email.png', to: 'images'},
+                {from: 'images/circles.png', to: 'images'},
+                {from: 'images/favicon', to: 'images/favicon'},
+                {from: 'images/appIcons.png', to: 'images'},
+                {from: 'images/warning.png', to: 'images'},
+                {from: 'images/logo-email.png', to: 'images'},
+                {from: 'images/browser-icons', to: 'images/browser-icons'},
+            ],
+        }),
 
         // Generate manifest.json, honouring any configured publicPath. This also handles injecting
         // <link rel="apple-touch-icon" ... /> and <meta name="apple-*" ... /> tags into root.html.
@@ -390,6 +401,7 @@ if (targetIsDevServer) {
                 context: () => true,
                 bypass(req) {
                     if (req.url.indexOf('/api') === 0 ||
+                        req.url.indexOf('/plugins') === 0 ||
                         req.url.indexOf('/static/plugins/') === 0 ||
                         req.url.indexOf('/sockjs-node/') !== -1) {
                         return null; // send through proxy to the server

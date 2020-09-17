@@ -1,17 +1,20 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {Tooltip} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 import Permissions from 'mattermost-redux/constants/permissions';
 
-import Constants from 'utils/constants.jsx';
+import Constants from 'utils/constants';
 import Reaction from 'components/post_view/reaction';
 import EmojiPickerOverlay from 'components/emoji_picker/emoji_picker_overlay.jsx';
+import AddReactionIcon from 'components/widgets/icons/add_reaction_icon';
+import OverlayTrigger from 'components/overlay_trigger';
 import ChannelPermissionGate from 'components/permissions_gates/channel_permission_gate';
-import {disableVirtList, localizeMessage} from 'utils/utils.jsx';
+import {localizeMessage} from 'utils/utils.jsx';
 
 const DEFAULT_EMOJI_PICKER_RIGHT_OFFSET = 15;
 const EMOJI_PICKER_WIDTH_OFFSET = 260;
@@ -45,11 +48,6 @@ export default class ReactionList extends React.PureComponent {
              * Function to add a reaction to the post
              */
             addReaction: PropTypes.func.isRequired,
-
-            /**
-             * Function used for correcting scroll when component is updated with first reaction
-             */
-            scrollPostList: PropTypes.func.isRequired,
         }),
     }
 
@@ -59,12 +57,6 @@ export default class ReactionList extends React.PureComponent {
         this.state = {
             showEmojiPicker: false,
         };
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.reactions !== prevProps.reactions && disableVirtList()) {
-            this.props.actions.scrollPostList();
-        }
     }
 
     getTarget = () => {
@@ -133,7 +125,7 @@ export default class ReactionList extends React.PureComponent {
                 <Tooltip id='addReactionTooltip'>
                     <FormattedMessage
                         id='reaction_list.addReactionTooltip'
-                        defaultMessage='Add reaction'
+                        defaultMessage='Add a reaction'
                     />
                 </Tooltip>
             );
@@ -149,18 +141,18 @@ export default class ReactionList extends React.PureComponent {
                         rightOffset={rightOffset}
                         topOffset={-5}
                     />
-                    <OverlayTrigger
-                        placement='top'
-                        delayShow={Constants.OVERLAY_TIME_DELAY}
-                        overlay={addReactionTooltip}
+                    <ChannelPermissionGate
+                        channelId={this.props.post.channel_id}
+                        teamId={this.props.teamId}
+                        permissions={[Permissions.ADD_REACTION]}
                     >
-                        <ChannelPermissionGate
-                            channelId={this.props.post.channel_id}
-                            teamId={this.props.teamId}
-                            permissions={[Permissions.ADD_REACTION]}
+                        <OverlayTrigger
+                            placement='top'
+                            delayShow={Constants.OVERLAY_TIME_DELAY}
+                            overlay={addReactionTooltip}
                         >
                             <button
-                                aria-label={localizeMessage('reaction.add.ariaLabel', 'add reaction')}
+                                aria-label={localizeMessage('reaction.add.ariaLabel', 'Add a reaction')}
                                 className='style--none post-reaction'
                                 onClick={this.toggleEmojiPicker}
                             >
@@ -169,11 +161,11 @@ export default class ReactionList extends React.PureComponent {
                                     className='post-reaction__add'
                                     ref='addReactionButton'
                                 >
-                                    {'+'}
+                                    <AddReactionIcon/>
                                 </span>
                             </button>
-                        </ChannelPermissionGate>
-                    </OverlayTrigger>
+                        </OverlayTrigger>
+                    </ChannelPermissionGate>
                 </span>
             );
         }
@@ -196,3 +188,4 @@ export default class ReactionList extends React.PureComponent {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

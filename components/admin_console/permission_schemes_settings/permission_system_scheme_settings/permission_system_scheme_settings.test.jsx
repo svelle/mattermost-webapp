@@ -5,7 +5,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import PermissionSystemSchemeSettings from 'components/admin_console/permission_schemes_settings/permission_system_scheme_settings/permission_system_scheme_settings.jsx';
-import {DefaultRolePermissions} from 'utils/constants.jsx';
+import {DefaultRolePermissions} from 'utils/constants';
 
 describe('components/admin_console/permission_schemes_settings/permission_system_scheme_settings/permission_system_scheme_settings', () => {
     const defaultProps = {
@@ -56,7 +56,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
 
     test('should match snapshot on roles without permissions', (done) => {
         const wrapper = shallow(
-            <PermissionSystemSchemeSettings {...defaultProps}/>
+            <PermissionSystemSchemeSettings {...defaultProps}/>,
         );
         defaultProps.actions.loadRolesIfNeeded().then(() => {
             expect(wrapper.state()).toMatchSnapshot();
@@ -73,7 +73,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
             <PermissionSystemSchemeSettings
                 {...defaultProps}
                 license={license}
-            />
+            />,
         );
         defaultProps.actions.loadRolesIfNeeded().then(() => {
             expect(wrapper).toMatchSnapshot();
@@ -115,7 +115,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
             <PermissionSystemSchemeSettings
                 {...defaultProps}
                 roles={roles}
-            />
+            />,
         );
 
         expect(wrapper).toMatchSnapshot();
@@ -131,12 +131,47 @@ describe('components/admin_console/permission_schemes_settings/permission_system
             <PermissionSystemSchemeSettings
                 {...defaultProps}
                 actions={{...defaultProps.actions, editRole}}
-            />
+            />,
         );
 
         expect(wrapper).toMatchSnapshot();
 
         await wrapper.instance().handleSubmit();
+        expect(editRole).toHaveBeenCalledTimes(8);
+    });
+
+    test('should save roles based on license', async () => {
+        const license = {
+            IsLicensed: 'true',
+            CustomPermissionsSchemes: 'false',
+            GuestAccountsPermissions: 'false',
+        };
+        let editRole = jest.fn().mockImplementation(() => Promise.resolve({data: {}}));
+        const wrapper = shallow(
+            <PermissionSystemSchemeSettings
+                {...defaultProps}
+                license={license}
+                actions={{...defaultProps.actions, editRole}}
+            />,
+        );
+
+        expect(wrapper).toMatchSnapshot();
+
+        await wrapper.instance().handleSubmit();
+        expect(editRole).toHaveBeenCalledTimes(5);
+        license.GuestAccountsPermissions = 'true';
+        editRole = jest.fn().mockImplementation(() => Promise.resolve({data: {}}));
+        const wrapper2 = shallow(
+            <PermissionSystemSchemeSettings
+                {...defaultProps}
+                license={license}
+                actions={{...defaultProps.actions, editRole}}
+            />,
+        );
+
+        expect(wrapper2).toMatchSnapshot();
+
+        await wrapper2.instance().handleSubmit();
         expect(editRole).toHaveBeenCalledTimes(8);
     });
 
@@ -146,7 +181,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
             <PermissionSystemSchemeSettings
                 {...defaultProps}
                 actions={{...defaultProps.actions, editRole}}
-            />
+            />,
         );
 
         await wrapper.instance().handleSubmit();
@@ -155,7 +190,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
 
     test('should open and close correctly roles blocks', () => {
         const wrapper = shallow(
-            <PermissionSystemSchemeSettings {...defaultProps}/>
+            <PermissionSystemSchemeSettings {...defaultProps}/>,
         );
         const instance = wrapper.instance();
         expect(wrapper.state().openRoles.all_users).toBe(true);
@@ -185,7 +220,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
 
     test('should open modal on click reset defaults', () => {
         const wrapper = shallow(
-            <PermissionSystemSchemeSettings {...defaultProps}/>
+            <PermissionSystemSchemeSettings {...defaultProps}/>,
         );
         expect(wrapper.state().showResetDefaultModal).toBe(false);
         wrapper.find('.reset-defaults-btn').first().simulate('click');
@@ -194,7 +229,7 @@ describe('components/admin_console/permission_schemes_settings/permission_system
 
     test('should have default permissions that match the defaults constant', () => {
         const wrapper = shallow(
-            <PermissionSystemSchemeSettings {...defaultProps}/>
+            <PermissionSystemSchemeSettings {...defaultProps}/>,
         );
         expect(wrapper.state().roles.all_users.permissions.length).toBe(0);
         expect(wrapper.state().roles.channel_admin.permissions.length).toBe(0);

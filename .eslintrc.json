@@ -1,10 +1,10 @@
 {
   "extends": [
-    "./node_modules/eslint-config-mattermost/.eslintrc.json",
-    "./node_modules/eslint-config-mattermost/.eslintrc-react.json",
+    "plugin:mattermost/react",
     "plugin:cypress/recommended"
   ],
   "plugins": [
+    "mattermost",
     "import",
     "cypress"
   ],
@@ -37,25 +37,8 @@
         ]
       }
     ],
-    "no-magic-numbers": [
-      1,
-      {
-        "ignore": [
-          -1,
-          0,
-          1,
-          2
-        ],
-        "enforceConst": true,
-        "detectObjects": true
-      }
-    ],
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [".js"]
-      }
-    ],
+    "no-undefined": 0,
+    "react/jsx-filename-extension": 0,
     "react/prop-types": [
       2,
       {
@@ -65,9 +48,55 @@
           "component"
         ]
       }
-    ]
+    ],
+    "react/no-string-refs": 2
   },
   "overrides": [
+    {
+      "files": ["**/*.tsx", "**/*.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        "comma-dangle": 0,
+        "no-unused-expressions": 0,
+        "@typescript-eslint/no-unused-expressions": 2,
+        "@typescript-eslint/camelcase": [
+          2,
+          {
+            "properties": "never"
+          }
+        ],
+        "@typescript-eslint/no-non-null-assertion": 0,
+        "@typescript-eslint/no-unused-vars": [
+          2,
+          {
+            "vars": "all",
+            "args": "after-used"
+          }
+        ],
+        "@typescript-eslint/no-var-requires": 0,
+        "@typescript-eslint/no-empty-function": 0,
+        "@typescript-eslint/prefer-interface": 0,
+        "@typescript-eslint/explicit-function-return-type": 0,
+        "@typescript-eslint/indent": [
+          2,
+          4,
+          {
+            "SwitchCase": 0
+          }
+        ],
+        "@typescript-eslint/no-use-before-define": [
+          2,
+          {
+            "classes": false,
+            "functions": false,
+            "variables": false
+          }
+        ],
+        "react/jsx-filename-extension": 0
+      }
+    },
     {
       "files": ["tests/**"],
       "env": {

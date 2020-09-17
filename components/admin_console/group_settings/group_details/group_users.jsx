@@ -10,6 +10,8 @@ import FormattedMarkdownMessage from 'components/formatted_markdown_message';
 import NextIcon from 'components/widgets/icons/fa_next_icon';
 import PreviousIcon from 'components/widgets/icons/fa_previous_icon';
 
+import {getSiteURL} from 'utils/url';
+
 const GROUP_MEMBERS_PAGE_SIZE = 20;
 
 export default class GroupUsers extends React.PureComponent {
@@ -34,17 +36,26 @@ export default class GroupUsers extends React.PureComponent {
         });
     }
 
-    previousPage = async () => {
+    previousPage = () => {
         const page = this.state.page < 1 ? 0 : this.state.page - 1;
-        this.setState({page, loading: true});
-        await this.props.getMembers(this.props.groupID, page, GROUP_MEMBERS_PAGE_SIZE);
-        this.setState({loading: false});
+        this.setState({page});
     }
 
     nextPage = async () => {
-        const page = (this.state.page + 1) * GROUP_MEMBERS_PAGE_SIZE >= this.props.total ? this.state.page : this.state.page + 1;
+        const {total, members, groupID, getMembers} = this.props;
+        const page = (this.state.page + 1) * GROUP_MEMBERS_PAGE_SIZE >= total ? this.state.page : this.state.page + 1;
+        if (page === this.state.page) {
+            return;
+        }
+
+        const numberOfMembersToLoad = (page + 1) * GROUP_MEMBERS_PAGE_SIZE >= total ? total : (page + 1) * GROUP_MEMBERS_PAGE_SIZE;
+        if (members.length >= numberOfMembersToLoad) {
+            this.setState({page});
+            return;
+        }
+
         this.setState({page, loading: true});
-        await this.props.getMembers(this.props.groupID, page, GROUP_MEMBERS_PAGE_SIZE);
+        await getMembers(groupID, page, GROUP_MEMBERS_PAGE_SIZE);
         this.setState({loading: false});
     }
 
@@ -59,7 +70,9 @@ export default class GroupUsers extends React.PureComponent {
                 </div>
             );
         }
-        return this.props.members.map((member) => {
+
+        const usersToDisplay = this.props.members.slice((this.state.page * GROUP_MEMBERS_PAGE_SIZE), ((this.state.page + 1) * GROUP_MEMBERS_PAGE_SIZE));
+        return usersToDisplay.map((member) => {
             return (
                 <GroupUsersRow
                     key={member.id}
@@ -124,7 +137,8 @@ export default class GroupUsers extends React.PureComponent {
                 <div className='group-users--header'>
                     <FormattedMarkdownMessage
                         id='admin.group_settings.group_profile.group_users.ldapConnector'
-                        defaultMessage={'AD/LDAP Connector is configured to sync and manage this group and its users. [Click here to view](/admin_console/authentication/ldap)'}
+                        defaultMessage={'AD/LDAP Connector is configured to sync and manage this group and its users. [Click here to view]({siteURL}/admin_console/authentication/ldap)'}
+                        values={{siteURL: getSiteURL()}}
                     />
                 </div>
                 <div className='group-users--body'>
